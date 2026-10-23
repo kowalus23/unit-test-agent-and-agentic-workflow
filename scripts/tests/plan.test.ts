@@ -140,3 +140,10 @@ describe('buildPlan', () => {
     assert.deepEqual(plan.ignored.map((item) => item.path), ['backend/src/missing.ts']);
   });
 });
+
+describe('agent commits keep the existing report', () => {
+  test('the plan marks the agent commit so publishing is skipped', () => {
+    assert.equal(buildPlan(input([{ status: 'added', path: 'backend/tests/x.test.ts' }], { headCommitMessage: `test: x\n\n${AGENT_TRAILER} run=1` })).agent_commit, true);
+    assert.equal(buildPlan(input([{ status: 'modified', path: 'README.md' }])).agent_commit, false);
+  });
+});

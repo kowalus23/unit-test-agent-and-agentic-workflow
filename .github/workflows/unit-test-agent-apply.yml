@@ -50,6 +50,7 @@ jobs:
             .nvmrc
             .claude/lib
             .claude/policy
+            .claude/schemas
             scripts/agent
       - name: Check out PR head (files are only read, never executed)
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -103,14 +104,26 @@ jobs:
           jq --arg query "$query" '{query: $query, variables: .}' "$RUNNER_TEMP/commit-input.json" > "$RUNNER_TEMP/request.json"
           gh api graphql --input "$RUNNER_TEMP/request.json" --jq '.data.createCommitOnBranch.commit.oid' > "$RUNNER_TEMP/commit-oid"
           echo "Committed $(cat "$RUNNER_TEMP/commit-oid") on $HEAD_REF" >> "$GITHUB_STEP_SUMMARY"
-      - name: Remove the label and report
+      - name: Remove the label and update the report
         if: always()
         env:
           OUTCOME: ${{ job.status }}
         run: |
+          set -uo pipefail
           gh api -X DELETE "repos/$REPO/issues/$PR_NUMBER/labels/unit-test-agent:apply" > /dev/null || true
           if [[ -s "$RUNNER_TEMP/commit-oid" ]]; then
-            msg="Applied the verified unit tests in $(cat "$RUNNER_TEMP/commit-oid"). CI on that commit waits for a maintainer to approve the workflow run."
+            oid="$(cat "$RUNNER_TEMP/commit-oid")"
+            marker='<!-- unit-test-agent:report -->'
+            comment_id="$(gh api --paginate "repos/$REPO/issues/$PR_NUMBER/comments" \
+              --jq ".[] | select(.user.login == \"github-actions[bot]\" and (.body | startswith(\"$marker\"))) | .id" | head -n 1)"
+            if [[ -n "$comment_id" ]]; then
+              # Mark the existing report as applied instead of adding another comment.
+              gh api "repos/$REPO/issues/comments/$comment_id" --jq .body > "$RUNNER_TEMP/report.md"
+              node trusted/scripts/agent/render-report.ts --mark-applied "$oid" --in "$RUNNER_TEMP/report.md" --out "$RUNNER_TEMP/report-applied.md"
+              jq -Rs '{body: .}' "$RUNNER_TEMP/report-applied.md" | gh api -X PATCH "repos/$REPO/issues/comments/$comment_id" --input - > /dev/null
+              exit 0
+            fi
+            msg="Applied the verified unit tests in $oid. CI on that commit waits for a maintainer to approve the workflow run."
           else
             msg="Could not apply the unit tests (outcome: $OUTCOME). See the apply workflow run for details; the PR branch was not changed."
           fi

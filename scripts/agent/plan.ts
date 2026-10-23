@@ -47,6 +47,8 @@ export type Plan = {
   head_sha: string;
   run_agent: boolean;
   skip_reason: string | null;
+  /** The head commit is the agent's own (applied tests): keep the existing report, do nothing else. */
+  agent_commit: boolean;
   targets: PlanTarget[];
   dropped_targets: string[];
   ignored: { path: string; reason: string }[];
@@ -126,6 +128,7 @@ export function buildPlan(input: PlanInput): Plan {
     head_sha: input.headSha,
     run_agent: false,
     skip_reason: null,
+    agent_commit: false,
     targets: [],
     dropped_targets: [],
     ignored: [],
@@ -200,6 +203,7 @@ export function buildPlan(input: PlanInput): Plan {
 
   if (input.mode === 'pr' && input.headCommitMessage.includes(AGENT_TRAILER)) {
     plan.skip_reason = 'the head commit was created by the unit-test agent';
+    plan.agent_commit = true;
   } else if (plan.targets.length === 0) {
     plan.skip_reason = plan.deleted_sources.length > 0 ? 'only deleted source files; existing tests still run in the regular test suites' : 'no unit-testable source changes';
   } else {

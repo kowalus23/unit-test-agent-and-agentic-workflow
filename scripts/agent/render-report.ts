@@ -19,6 +19,9 @@ import type { Verdict } from './verify.ts';
 export const REPORT_MARKER = '<!-- unit-test-agent:report -->';
 const MAX_COMMENT = 60_000;
 const MAX_DIFF_LINES = 400;
+const NOT_COMMITTED =
+  'These tests are **not committed**. Add the `unit-test-agent:apply` label to commit exactly this verified patch to the PR branch, or apply it locally from the `unit-test-agent-final-patch` artifact with `git apply final.patch`.';
+export const APPLIED_MARKER = '<!-- unit-test-agent:applied -->';
 
 type AgentTarget = { source_file: string; decision: string; test_files: string[]; behaviours?: string[]; reason: string; local_result: string };
 type AgentFinding = { kind: string; file: string; line?: number; detail: string };
@@ -170,7 +173,7 @@ export function renderReport(input: ReportInput): string {
     lines.push(
       `### Proposed tests (${verdict.final_patch_files.length} file(s), ${proposedTests} passing test(s))`,
       '',
-      'These tests are **not committed**. Add the `unit-test-agent:apply` label to commit exactly this verified patch to the PR branch, or apply it locally from the `unit-test-agent-final-patch` artifact with `git apply final.patch`.',
+      NOT_COMMITTED,
       '',
       '<details><summary>Show diff</summary>',
       '',
@@ -203,6 +206,17 @@ function finish(lines: string[], runUrl?: string): string {
   return body.length > MAX_COMMENT ? `${body.slice(0, MAX_COMMENT)}\n\n_Report truncated._` : body;
 }
 
+/** Marks an existing report as applied (idempotent). `sha` comes from the GitHub API, not from the model. */
+export function markApplied(body: string, sha: string): string {
+  if (!/^[0-9a-f]{40}$/.test(sha)) throw new Error('expected a full commit SHA');
+  if (body.includes(APPLIED_MARKER)) return body;
+  const note = `${APPLIED_MARKER}\n> ✅ **Applied** in ${sha.slice(0, 7)}: the verified tests were committed to this branch. CI on that commit waits for a maintainer to approve the workflow run.`;
+  const lines = body.split('\n');
+  const heading = lines.findIndex((line) => line.startsWith('## '));
+  lines.splice(heading === -1 ? lines.length : heading + 1, 0, '', note);
+  return lines.join('\n').replace(NOT_COMMITTED, `These tests were committed in ${sha.slice(0, 7)} by the apply workflow.`);
+}
+
 function readJson<T>(dir: string, name: string): T | null {
   const path = join(dir, name);
   if (!existsSync(path)) return null;
@@ -214,7 +228,14 @@ function readJson<T>(dir: string, name: string): T | null {
 }
 
 function main(): void {
-  const { values } = parseArgs({ options: { dir: { type: 'string' }, 'run-url': { type: 'string' }, out: { type: 'string' } } });
+  const { values } = parseArgs({
+    options: { dir: { type: 'string' }, 'run-url': { type: 'string' }, out: { type: 'string' }, 'mark-applied': { type: 'string' }, in: { type: 'string' } },
+  });
+  if (values['mark-applied']) {
+    if (!values.in || !values.out) throw new Error('--mark-applied needs --in and --out');
+    writeFileSync(values.out, markApplied(readFileSync(values.in, 'utf8'), values['mark-applied']));
+    return;
+  }
   if (!values.dir) throw new Error('--dir is required');
   const dir = values.dir;
   const report = renderReport({

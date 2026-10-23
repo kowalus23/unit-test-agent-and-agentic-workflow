@@ -47,6 +47,8 @@ jobs:
     outputs:
       installed: ${{ steps.installed.outputs.installed }}
       run_agent: ${{ steps.plan.outputs.run_agent }}
+      # false for the agent's own commits, so the report of the verified run stays in place
+      publish: ${{ steps.plan.outputs.publish }}
     steps:
       - name: Check out base (trusted tooling)
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -83,6 +85,7 @@ jobs:
           mkdir -p "$RUNNER_TEMP/plan"
           node trusted/scripts/agent/plan.ts --repo pr --base "$BASE_SHA" --head "$HEAD_SHA" --out "$RUNNER_TEMP/plan/plan.json"
           echo "run_agent=$(jq -r .run_agent "$RUNNER_TEMP/plan/plan.json")" >> "$GITHUB_OUTPUT"
+          echo "publish=$(jq -r '.agent_commit | not' "$RUNNER_TEMP/plan/plan.json")" >> "$GITHUB_OUTPUT"
           jq '{run_agent, skip_reason, routing, targets: [.targets[] | {source, owner_test, owner_test_exists, changed_line_count}], flags}' "$RUNNER_TEMP/plan/plan.json"
       - if: steps.installed.outputs.installed == 'true'
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
@@ -245,6 +248,7 @@ jobs:
       !cancelled()
       && needs.plan.result == 'success'
       && needs.plan.outputs.installed == 'true'
+      && needs.plan.outputs.publish == 'true'
     runs-on: ubuntu-24.04
     timeout-minutes: 5
     permissions:

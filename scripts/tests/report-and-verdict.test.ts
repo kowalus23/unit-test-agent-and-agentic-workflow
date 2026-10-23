@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { describe, test } from 'node:test';
-import { plain, renderReport, REPORT_MARKER } from '../agent/render-report.ts';
+import { markApplied, plain, renderReport, REPORT_MARKER } from '../agent/render-report.ts';
 import { canEscalate, errorSummary, escalationReason, type Attempt } from '../agent/run-agent.ts';
 import { readFileSync } from 'node:fs';
 import { extractJsonBlock, loadSchema, validate } from '../../.claude/lib/json-schema.ts';
@@ -23,7 +23,7 @@ describe('plain()', () => {
 describe('renderReport', () => {
   test('explains a skipped run without calling a model', () => {
     const report = renderReport({
-      plan: { version: 1, mode: 'pr', base_sha: 'b', head_sha: 'abcdef1234567', run_agent: false, skip_reason: 'no unit-testable source changes', targets: [], dropped_targets: [], ignored: [{ path: 'README.md', reason: 'outside backend/ and frontend/' }], deleted_sources: [], author_test_changes: [], flags: { dependencies_changed: false, agent_config_changed: false, test_config_changed: false, database_changed: false, injection_suspected: false, injection_signals: [] }, routing: null },
+      plan: { version: 1, mode: 'pr', base_sha: 'b', head_sha: 'abcdef1234567', run_agent: false, skip_reason: 'no unit-testable source changes', agent_commit: false, targets: [], dropped_targets: [], ignored: [{ path: 'README.md', reason: 'outside backend/ and frontend/' }], deleted_sources: [], author_test_changes: [], flags: { dependencies_changed: false, agent_config_changed: false, test_config_changed: false, database_changed: false, injection_suspected: false, injection_signals: [] }, routing: null },
       metrics: null,
       result: null,
       verdict: null,
@@ -37,7 +37,7 @@ describe('renderReport', () => {
   test('uses a fence longer than any backtick run in the patch', () => {
     const patch = 'diff --git a/x b/x\n+const s = ````;\n';
     const report = renderReport({
-      plan: { version: 1, mode: 'pr', base_sha: 'b', head_sha: 'h', run_agent: true, skip_reason: null, targets: [], dropped_targets: [], ignored: [], deleted_sources: [], author_test_changes: [], flags: { dependencies_changed: false, agent_config_changed: false, test_config_changed: false, database_changed: false, injection_suspected: false, injection_signals: [] }, routing: { tier: 'S', model: 'm', effort: 'medium', max_turns: 1, max_budget_usd: 1, escalation_tier: null, reason: 'r' } },
+      plan: { version: 1, mode: 'pr', base_sha: 'b', head_sha: 'h', run_agent: true, skip_reason: null, agent_commit: false, targets: [], dropped_targets: [], ignored: [], deleted_sources: [], author_test_changes: [], flags: { dependencies_changed: false, agent_config_changed: false, test_config_changed: false, database_changed: false, injection_suspected: false, injection_signals: [] }, routing: { tier: 'S', model: 'm', effort: 'medium', max_turns: 1, max_budget_usd: 1, escalation_tier: null, reason: 'r' } },
       metrics: null,
       result: null,
       verdict: { version: 1, head_sha: 'h', guard: { ok: true, violations: [], notices: [], files: [] }, packages: { backend: { status: 'not_touched', reasons: [], test_files: [], typecheck: null, baseline: null, patched: null, new_tests: { passed: 0, failed: 0 }, stability: null, coverage: null }, frontend: { status: 'not_touched', reasons: [], test_files: [], typecheck: null, baseline: null, patched: null, new_tests: { passed: 0, failed: 0 }, stability: null, coverage: null } }, targets: [], final_patch_files: ['x'], formatted_files: [] },
@@ -175,7 +175,7 @@ describe('setup failures', () => {
 
   test('reports a failed agent run as a failure, not as "no changes"', () => {
     const report = renderReport({
-      plan: { version: 1, mode: 'pr', base_sha: 'b', head_sha: 'h', run_agent: true, skip_reason: null, targets: [], dropped_targets: [], ignored: [], deleted_sources: [], author_test_changes: [], flags: { dependencies_changed: false, agent_config_changed: false, test_config_changed: false, database_changed: false, injection_suspected: false, injection_signals: [] }, routing: { tier: 'S', model: 'm', effort: 'medium', max_turns: 1, max_budget_usd: 1, escalation_tier: null, reason: 'r' } },
+      plan: { version: 1, mode: 'pr', base_sha: 'b', head_sha: 'h', run_agent: true, skip_reason: null, agent_commit: false, targets: [], dropped_targets: [], ignored: [], deleted_sources: [], author_test_changes: [], flags: { dependencies_changed: false, agent_config_changed: false, test_config_changed: false, database_changed: false, injection_suspected: false, injection_signals: [] }, routing: { tier: 'S', model: 'm', effort: 'medium', max_turns: 1, max_budget_usd: 1, escalation_tier: null, reason: 'r' } },
       metrics: { status: 'launch_failed', attempts: [{ status: 'launch_failed', subtype: 'error: bubblewrap is required', turns: 0 } as Attempt] },
       result: null,
       verdict: { version: 1, head_sha: 'h', guard: { ok: true, violations: [], notices: [], files: [] }, packages: { backend: { status: 'not_touched', reasons: [], test_files: [], typecheck: null, baseline: null, patched: null, new_tests: { passed: 0, failed: 0 }, stability: null, coverage: null }, frontend: { status: 'not_touched', reasons: [], test_files: [], typecheck: null, baseline: null, patched: null, new_tests: { passed: 0, failed: 0 }, stability: null, coverage: null } }, targets: [], final_patch_files: [], formatted_files: [] },
@@ -185,3 +185,18 @@ describe('setup failures', () => {
     assert.match(report, /bubblewrap is required/);
   });
 });
+
+describe('markApplied', () => {
+  const body = ['<!-- unit-test-agent:report -->', '', '## 🧪 Unit-test agent: 1 verified test file(s) proposed', '', 'These tests are **not committed**. Add the `unit-test-agent:apply` label to commit exactly this verified patch to the PR branch, or apply it locally from the `unit-test-agent-final-patch` artifact with `git apply final.patch`.'].join('\n');
+  const sha = 'ea45888438ac8e14d53e0e4a1a99af6501439788';
+  test('adds an applied note under the heading and replaces the not-committed hint, once', () => {
+    const marked = markApplied(body, sha);
+    assert.match(marked, /## 🧪[^\n]*\n\n<!-- unit-test-agent:applied -->\n> ✅ \*\*Applied\*\* in ea45888/);
+    assert.doesNotMatch(marked, /not committed/);
+    assert.equal(markApplied(marked, sha), marked);
+  });
+  test('accepts only full commit SHAs', () => {
+    assert.throws(() => markApplied(body, 'ea45888; rm -rf /'), /full commit SHA/);
+  });
+});
+
