@@ -127,7 +127,9 @@ function runOnce(claude: string, repo: string, prompt: string, settings: Attempt
     timeout: AGENT_TIMEOUT_MS,
     maxBuffer: 64 * 1024 * 1024,
   });
+  // Raw CLI output stays local for debugging; CI uploads only the curated files.
   writeFileSync(join(out, `agent-stderr-${index}.log`), run.stderr ?? '');
+  writeFileSync(join(out, `agent-output-${index}.json`), run.stdout ?? '');
   const base: Attempt = {
     ...settings,
     status: 'launch_failed',

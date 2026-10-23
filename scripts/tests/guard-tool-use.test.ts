@@ -75,5 +75,6 @@ describe('guard-tool-use', () => {
     assert.ok(!allowed('WebFetch', { url: 'https://example.com' }));
     assert.ok(!allowed('mcp__github__create_issue', {}));
     assert.ok(allowed('Skill', { skill: 'running-unit-tests' }));
+    assert.ok(allowed('StructuredOutput', { decision: 'tests_added' }), 'the --json-schema result tool must stay available');
   });
 });

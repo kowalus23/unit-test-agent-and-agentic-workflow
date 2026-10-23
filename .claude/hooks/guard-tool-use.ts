@@ -18,7 +18,8 @@ export type Decision = { allow: true } | { allow: false; reason: string };
 const ALLOW: Decision = { allow: true };
 const deny = (reason: string): Decision => ({ allow: false, reason });
 
-const ALWAYS_ALLOWED_TOOLS = new Set(['Skill', 'Agent', 'Task', 'TodoWrite']);
+// StructuredOutput is how the CLI returns the --json-schema result; blocking it loses the result.
+const ALWAYS_ALLOWED_TOOLS = new Set(['Skill', 'Agent', 'Task', 'TodoWrite', 'StructuredOutput']);
 const WRITE_TOOLS = new Set(['Edit', 'Write', 'MultiEdit', 'NotebookEdit']);
 const READ_TOOLS = new Set(['Read', 'Grep', 'Glob', 'LS']);
 
