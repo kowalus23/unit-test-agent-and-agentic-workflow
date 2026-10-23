@@ -201,7 +201,7 @@ export function buildPlan(input: PlanInput): Plan {
   if (input.mode === 'pr' && input.headCommitMessage.includes(AGENT_TRAILER)) {
     plan.skip_reason = 'the head commit was created by the unit-test agent';
   } else if (plan.targets.length === 0) {
-    plan.skip_reason = plan.deleted_sources.length > 0 ? 'only deleted source files; existing tests are checked by CI' : 'no unit-testable source changes';
+    plan.skip_reason = plan.deleted_sources.length > 0 ? 'only deleted source files; existing tests still run in the regular test suites' : 'no unit-testable source changes';
   } else {
     plan.run_agent = true;
     if (input.mode === 'sweep') {

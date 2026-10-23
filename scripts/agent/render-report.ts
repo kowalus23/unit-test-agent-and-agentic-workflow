@@ -30,7 +30,9 @@ export type ReportInput = { plan: Plan | null; metrics: Metrics | null; result: 
 export function plain(text: unknown, max = 500): string {
   if (typeof text !== 'string') return '';
   return text
-    .replace(/<[^>]*>/g, ' ')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
     .replace(/!\[([^\]]*)\]\([^)]*\)/g, '$1')
     .replace(/\[([^\]]*)\]\([^)]*\)/g, '$1')
     .replace(/\b(?:https?|ftp|file|data|javascript):\S*/gi, '[link removed]')

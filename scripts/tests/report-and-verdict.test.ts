@@ -128,3 +128,16 @@ describe('buildCommitInput', () => {
     assert.throws(() => buildCommitInput({ ...args, patch: patch.replaceAll('backend/tests/health.test.ts', 'backend/src/health.ts'), verdict: verdict('a'.repeat(40), ['backend/src/health.ts']) }), /guard/);
   });
 });
+
+describe('plain() keeps comparisons readable', () => {
+  test('escapes angle brackets instead of dropping the text between them', () => {
+    assert.equal(plain('count < 2 -> zero'), 'count &lt; 2 -&gt; zero');
+  });
+});
+
+describe('escalationReason carve-out', () => {
+  test('does not escalate when the agent explains a failure as a suspected bug', () => {
+    const result = { targets: [{ source_file: 'backend/src/a.ts', test_files: ['backend/tests/a.test.ts'], local_result: 'failed' }], findings: [{ kind: 'suspected_bug', file: 'backend/src/a.ts' }] };
+    assert.equal(escalationReason({ status: 'ok' } as Attempt, result, true), null);
+  });
+});

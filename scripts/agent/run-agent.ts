@@ -167,8 +167,14 @@ function runOnce(claude: string, repo: string, prompt: string, settings: Attempt
 export function escalationReason(attempt: Attempt, result: unknown, guardOk: boolean): string | null {
   if (attempt.status !== 'ok') return `attempt ended with ${attempt.status}${attempt.subtype ? ` (${attempt.subtype})` : ''}`;
   if (!guardOk) return 'patch rejected by the guard';
-  const targets = (result as { targets?: { local_result?: string }[] }).targets ?? [];
-  if (targets.some((target) => target.local_result === 'failed')) return 'agent reported failing tests';
+  const { targets = [], findings = [] } = result as {
+    targets?: { source_file?: string; test_files?: string[]; local_result?: string }[];
+    findings?: { kind?: string; file?: string }[];
+  };
+  // A failure the agent explains as a bug in the code under test is a finding, not a weak attempt.
+  const explained = (target: { source_file?: string; test_files?: string[] }) =>
+    findings.some((finding) => (finding.kind === 'suspected_bug' || finding.kind === 'changed_expectations') && (finding.file === target.source_file || (target.test_files ?? []).includes(finding.file ?? '')));
+  if (targets.some((target) => target.local_result === 'failed' && !explained(target))) return 'agent reported failing tests';
   if ((result as { decision?: string }).decision === 'blocked') return 'agent reported it was blocked';
   return null;
 }

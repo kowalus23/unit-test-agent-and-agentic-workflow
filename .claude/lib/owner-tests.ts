@@ -12,13 +12,13 @@ export type RepoReader = {
 };
 
 const EXTENSION = /\.(?:tsx?|jsx?|mts|cts)$/;
-const SPECIFIER = /\bfrom\s+['"]([^'"]+)['"]|\bimport\(\s*['"]([^'"]+)['"]\s*\)|\bvi\.(?:mock|doMock)\(\s*['"]([^'"]+)['"]/g;
+const SPECIFIER = /\bfrom\s+['"]([^'"]+)['"]|\bimport\(\s*['"]([^'"]+)['"]\s*\)|\bvi\.(?:mock|doMock)\(\s*['"]([^'"]+)['"]|^\s*import\s+['"]([^'"]+)['"]/gm;
 
 /** Repository-relative source paths (without extension) imported by a test file via relative specifiers. */
 export function importedModules(testPath: string, content: string): Set<string> {
   const modules = new Set<string>();
   for (const match of content.matchAll(SPECIFIER)) {
-    const specifier = match[1] ?? match[2] ?? match[3];
+    const specifier = match[1] ?? match[2] ?? match[3] ?? match[4];
     if (!specifier.startsWith('.')) continue;
     modules.add(posix.normalize(posix.join(posix.dirname(testPath), specifier)).replace(EXTENSION, ''));
   }
