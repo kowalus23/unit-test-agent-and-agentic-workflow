@@ -1,0 +1,9 @@
+# Automation, agent configuration and the database schema are trust boundaries.
+# Ownership is advisory here (single-maintainer repository, so code-owner review
+# is not required by the ruleset); hard enforcement lives in the workflows,
+# e.g. the unit-test agent may only commit test files.
+/.github/        @kowalus23
+/.claude/        @kowalus23
+/CLAUDE.md       @kowalus23
+/scripts/        @kowalus23
+/backend/prisma/ @kowalus23

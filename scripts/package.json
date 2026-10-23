@@ -1,0 +1,18 @@
+{
+  "name": "taskly-app-node-scripts",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Repository tooling (CI helpers). Runs on Node.js type stripping with zero runtime dependencies; devDependencies are only used for type checking.",
+  "type": "module",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "typecheck": "tsc -p tsconfig.json",
+    "test": "node --test \"**/*.test.ts\""
+  },
+  "devDependencies": {
+    "@types/node": "24.19.1",
+    "typescript": "5.9.3"
+  }
+}
