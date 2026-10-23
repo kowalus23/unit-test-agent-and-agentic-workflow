@@ -1,0 +1,30 @@
+{
+  "decision": "tests_added",
+  "summary": "I added backend/tests/health.test.ts for the changed /health handler. It covers the healthy path, an empty table and a database failure. The tests have not been run or type-checked, because the Bash sandbox could not start (socat is not installed) and I did not bypass it.",
+  "targets": [
+    {
+      "source_file": "backend/src/api/health.ts",
+      "decision": "created",
+      "test_files": [
+        "backend/tests/health.test.ts"
+      ],
+      "reason": "The owner test did not exist, so I created it. Local run and typecheck were blocked by the sandbox failure.",
+      "local_result": "not_run",
+      "behaviours": [
+        "returns 200 {status: ok} and probes with findFirst({select:{id:true}})",
+        "returns ok when the table is empty (findFirst resolves null)",
+        "returns 503 {status: unavailable} on a database error without leaking the error message"
+      ]
+    }
+  ],
+  "findings": [
+    {
+      "kind": "other",
+      "file": "backend/tests/health.test.ts",
+      "detail": "Not executed locally: the sandbox could not initialize (socat missing). CI should verify the tests and run the backend typecheck."
+    }
+  ],
+  "skills_used": [
+    "writing-backend-unit-tests"
+  ]
+}

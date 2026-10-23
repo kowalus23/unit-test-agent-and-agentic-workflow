@@ -1,0 +1,179 @@
+{
+  "version": 1,
+  "mode": "pr",
+  "base_sha": "50bdff247ce01c14fbe05dd6b5fe349cb597b55e",
+  "head_sha": "636b4ea88b54e722d189b54da3ed154d6fa03abf",
+  "run_agent": true,
+  "skip_reason": null,
+  "agent_commit": false,
+  "targets": [
+    {
+      "package": "backend",
+      "source": "backend/src/features/todos/repository.ts",
+      "status": "modified",
+      "kind": "module",
+      "changed_lines": [
+        [
+          51,
+          55
+        ]
+      ],
+      "changed_line_count": 5,
+      "owner_test": "backend/tests/repository.test.ts",
+      "owner_test_exists": true,
+      "related_tests": []
+    },
+    {
+      "package": "backend",
+      "source": "backend/src/features/todos/router.ts",
+      "status": "modified",
+      "kind": "module",
+      "changed_lines": [
+        [
+          3,
+          3
+        ],
+        [
+          19,
+          23
+        ]
+      ],
+      "changed_line_count": 6,
+      "owner_test": "backend/tests/router.test.ts",
+      "owner_test_exists": true,
+      "related_tests": []
+    },
+    {
+      "package": "backend",
+      "source": "backend/src/features/todos/validators.ts",
+      "status": "modified",
+      "kind": "module",
+      "changed_lines": [
+        [
+          27,
+          29
+        ]
+      ],
+      "changed_line_count": 3,
+      "owner_test": "backend/tests/validators.test.ts",
+      "owner_test_exists": true,
+      "related_tests": []
+    },
+    {
+      "package": "frontend",
+      "source": "frontend/src/features/todos/api/todos.ts",
+      "status": "modified",
+      "kind": "module",
+      "changed_lines": [
+        [
+          34,
+          35
+        ]
+      ],
+      "changed_line_count": 2,
+      "owner_test": "frontend/src/features/todos/api/todos.test.ts",
+      "owner_test_exists": true,
+      "related_tests": [
+        "frontend/src/features/todos/hooks/useCreateTodoMutation.test.ts",
+        "frontend/src/features/todos/hooks/useDeleteTodoMutation.test.ts",
+        "frontend/src/features/todos/hooks/useTodosBusy.test.ts",
+        "frontend/src/features/todos/hooks/useTodosQuery.test.ts",
+        "frontend/src/features/todos/hooks/useUpdateTodoMutation.test.ts"
+      ]
+    },
+    {
+      "package": "frontend",
+      "source": "frontend/src/features/todos/components/ClearCompletedDialog.tsx",
+      "status": "added",
+      "kind": "component",
+      "changed_lines": [
+        [
+          1,
+          55
+        ]
+      ],
+      "changed_line_count": 55,
+      "owner_test": "frontend/src/features/todos/components/ClearCompletedDialog.test.tsx",
+      "owner_test_exists": false,
+      "related_tests": []
+    },
+    {
+      "package": "frontend",
+      "source": "frontend/src/features/todos/hooks/useClearCompletedMutation.ts",
+      "status": "added",
+      "kind": "hook",
+      "changed_lines": [
+        [
+          1,
+          18
+        ]
+      ],
+      "changed_line_count": 18,
+      "owner_test": "frontend/src/features/todos/hooks/useClearCompletedMutation.test.ts",
+      "owner_test_exists": false,
+      "related_tests": []
+    },
+    {
+      "package": "frontend",
+      "source": "frontend/src/features/todos/TodosPage.tsx",
+      "status": "modified",
+      "kind": "component",
+      "changed_lines": [
+        [
+          5,
+          5
+        ],
+        [
+          26,
+          27
+        ],
+        [
+          66,
+          76
+        ],
+        [
+          124,
+          138
+        ]
+      ],
+      "changed_line_count": 29,
+      "owner_test": "frontend/src/features/todos/TodosPage.test.tsx",
+      "owner_test_exists": true,
+      "related_tests": []
+    }
+  ],
+  "dropped_targets": [],
+  "ignored": [
+    {
+      "path": "backend/openapi.json",
+      "reason": "not unit-testable source (types, stories, config, generated or excluded)"
+    },
+    {
+      "path": "backend/src/features/todos/types.ts",
+      "reason": "not unit-testable source (types, stories, config, generated or excluded)"
+    },
+    {
+      "path": "frontend/src/features/todos/api/queryKeys.ts",
+      "reason": "not unit-testable source (types, stories, config, generated or excluded)"
+    }
+  ],
+  "deleted_sources": [],
+  "author_test_changes": [],
+  "flags": {
+    "dependencies_changed": false,
+    "agent_config_changed": false,
+    "test_config_changed": false,
+    "database_changed": false,
+    "injection_suspected": false,
+    "injection_signals": []
+  },
+  "routing": {
+    "tier": "L",
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "max_turns": 70,
+    "max_budget_usd": 4,
+    "escalation_tier": null,
+    "reason": "7 target(s), 118 changed source line(s), 2 component(s) -> smallest fitting tier L"
+  }
+}

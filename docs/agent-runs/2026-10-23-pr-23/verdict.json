@@ -1,0 +1,153 @@
+{
+  "version": 1,
+  "head_sha": "d6194b4301f45a10dbc702bb20641601dc422ebc",
+  "guard": {
+    "ok": true,
+    "violations": [],
+    "notices": [
+      {
+        "path": "frontend/src/lib/http.test.ts",
+        "kind": "changed_expectations",
+        "detail": "2 existing assertion or test-case line(s) changed or removed"
+      }
+    ],
+    "files": [
+      {
+        "path": "frontend/src/lib/http.test.ts",
+        "package": "frontend",
+        "status": "modified",
+        "added": 74,
+        "removed": 13
+      }
+    ]
+  },
+  "packages": {
+    "backend": {
+      "status": "not_touched",
+      "reasons": [],
+      "test_files": [],
+      "typecheck": null,
+      "baseline": null,
+      "patched": null,
+      "new_tests": {
+        "passed": 0,
+        "failed": 0
+      },
+      "stability": null,
+      "coverage": null
+    },
+    "frontend": {
+      "status": "accepted",
+      "reasons": [],
+      "test_files": [
+        "frontend/src/lib/http.test.ts"
+      ],
+      "typecheck": {
+        "baseline": true,
+        "patched": true
+      },
+      "baseline": {
+        "ran": true,
+        "passed": 155,
+        "failed": 2,
+        "failedTests": [
+          "frontend/src/lib/http.test.ts > sends JSON requests under /api and returns the parsed body",
+          "frontend/src/lib/http.test.ts > lets caller headers given as a plain object override the defaults"
+        ],
+        "totals": {
+          "lines": 98.88,
+          "branches": 96.81
+        }
+      },
+      "patched": {
+        "ran": true,
+        "passed": 162,
+        "failed": 0,
+        "failedTests": [],
+        "totals": {
+          "lines": 100,
+          "branches": 98.08
+        }
+      },
+      "new_tests": {
+        "passed": 14,
+        "failed": 0
+      },
+      "stability": {
+        "runs": 3,
+        "failures": []
+      },
+      "coverage": {
+        "lines_before": 98.88,
+        "lines_after": 100,
+        "branches_before": 96.81,
+        "branches_after": 98.08
+      }
+    }
+  },
+  "targets": [
+    {
+      "source": "frontend/src/lib/http.ts",
+      "package": "frontend",
+      "before": {
+        "statements": {
+          "covered": 18,
+          "total": 21,
+          "pct": 85.71
+        },
+        "branches": {
+          "covered": 12,
+          "total": 14,
+          "pct": 85.71
+        },
+        "functions": {
+          "covered": 2,
+          "total": 2,
+          "pct": 100
+        },
+        "lines": {
+          "covered": 15,
+          "total": 17,
+          "pct": 88.24
+        },
+        "uncoveredLines": [
+          29,
+          30
+        ],
+        "partialBranchLines": [
+          29
+        ]
+      },
+      "after": {
+        "statements": {
+          "covered": 21,
+          "total": 21,
+          "pct": 100
+        },
+        "branches": {
+          "covered": 14,
+          "total": 14,
+          "pct": 100
+        },
+        "functions": {
+          "covered": 2,
+          "total": 2,
+          "pct": 100
+        },
+        "lines": {
+          "covered": 17,
+          "total": 17,
+          "pct": 100
+        },
+        "uncoveredLines": [],
+        "partialBranchLines": []
+      }
+    }
+  ],
+  "final_patch_files": [
+    "frontend/src/lib/http.test.ts"
+  ],
+  "formatted_files": [
+    "frontend/src/lib/http.test.ts"
+  ]
+}

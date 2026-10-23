@@ -1,0 +1,146 @@
+{
+  "version": 1,
+  "head_sha": "d8fc810f9955d64747c0cfedb95479dbbdb9c734",
+  "guard": {
+    "ok": true,
+    "violations": [],
+    "notices": [],
+    "files": [
+      {
+        "path": "backend/tests/health.test.ts",
+        "package": "backend",
+        "status": "added",
+        "added": 42,
+        "removed": 0
+      }
+    ]
+  },
+  "packages": {
+    "backend": {
+      "status": "accepted",
+      "reasons": [],
+      "test_files": [
+        "backend/tests/health.test.ts"
+      ],
+      "typecheck": {
+        "baseline": true,
+        "patched": true
+      },
+      "baseline": {
+        "ran": true,
+        "passed": 48,
+        "failed": 0,
+        "failedTests": [],
+        "totals": {
+          "lines": 32.14,
+          "branches": 33.33
+        }
+      },
+      "patched": {
+        "ran": true,
+        "passed": 51,
+        "failed": 0,
+        "failedTests": [],
+        "totals": {
+          "lines": 39.28,
+          "branches": 33.33
+        }
+      },
+      "new_tests": {
+        "passed": 3,
+        "failed": 0
+      },
+      "stability": {
+        "runs": 3,
+        "failures": []
+      },
+      "coverage": {
+        "lines_before": 32.14,
+        "lines_after": 39.28,
+        "branches_before": 33.33,
+        "branches_after": 33.33
+      }
+    },
+    "frontend": {
+      "status": "not_touched",
+      "reasons": [],
+      "test_files": [],
+      "typecheck": null,
+      "baseline": null,
+      "patched": null,
+      "new_tests": {
+        "passed": 0,
+        "failed": 0
+      },
+      "stability": null,
+      "coverage": null
+    }
+  },
+  "targets": [
+    {
+      "source": "backend/src/api/health.ts",
+      "package": "backend",
+      "before": {
+        "statements": {
+          "covered": 0,
+          "total": 8,
+          "pct": 0
+        },
+        "branches": {
+          "covered": 0,
+          "total": 0,
+          "pct": 100
+        },
+        "functions": {
+          "covered": 0,
+          "total": 2,
+          "pct": 0
+        },
+        "lines": {
+          "covered": 0,
+          "total": 8,
+          "pct": 0
+        },
+        "uncoveredLines": [
+          5,
+          6,
+          7,
+          8,
+          11,
+          12,
+          14,
+          16
+        ],
+        "partialBranchLines": []
+      },
+      "after": {
+        "statements": {
+          "covered": 8,
+          "total": 8,
+          "pct": 100
+        },
+        "branches": {
+          "covered": 0,
+          "total": 0,
+          "pct": 100
+        },
+        "functions": {
+          "covered": 2,
+          "total": 2,
+          "pct": 100
+        },
+        "lines": {
+          "covered": 8,
+          "total": 8,
+          "pct": 100
+        },
+        "uncoveredLines": [],
+        "partialBranchLines": []
+      }
+    }
+  ],
+  "final_patch_files": [
+    "backend/tests/health.test.ts"
+  ],
+  "formatted_files": []
+}

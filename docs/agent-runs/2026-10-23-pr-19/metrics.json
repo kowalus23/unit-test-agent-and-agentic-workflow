@@ -1,0 +1,26 @@
+{
+  "status": "ok",
+  "accepted_attempt": 1,
+  "total_cost_usd": 0.4019,
+  "total_turns": 48,
+  "total_duration_ms": 102782,
+  "attempts": [
+    {
+      "tier": "L",
+      "model": "claude-sonnet-5-5",
+      "effort": "high",
+      "maxTurns": 70,
+      "maxBudgetUsd": 4,
+      "status": "ok",
+      "subtype": "success",
+      "cost_usd": 0.4018539,
+      "turns": 48,
+      "duration_ms": 102782,
+      "permission_denials": [
+        "Bash"
+      ],
+      "escalation_reason": null,
+      "result_source": "structured_output"
+    }
+  ]
+}

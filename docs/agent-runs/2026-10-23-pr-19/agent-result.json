@@ -1,0 +1,118 @@
+{
+  "decision": "tests_added",
+  "summary": "The PR adds a \"clear completed tasks\" feature (DELETE /api/todos?completed=true, a repository method, a React Query hook, a confirmation dialog and a page button). I added cases to the existing owner tests and created two new test files. The full backend and frontend suites and both type checks pass.",
+  "targets": [
+    {
+      "source_file": "backend/src/features/todos/repository.ts",
+      "decision": "updated",
+      "test_files": [
+        "backend/tests/repository.test.ts"
+      ],
+      "reason": "New deleteCompleted had no test; added a case, which passed with 100% coverage of the file.",
+      "local_result": "passed",
+      "behaviours": [
+        "deleteCompleted calls deleteMany with where completed true",
+        "deleteCompleted returns the deleted count, including 0"
+      ]
+    },
+    {
+      "source_file": "backend/src/features/todos/router.ts",
+      "decision": "updated",
+      "test_files": [
+        "backend/tests/router.test.ts"
+      ],
+      "reason": "New DELETE / route had no test; added cases. The existing setup() also needed a deleteCompleted mock, otherwise the type check failed because TodoStore now requires it; no existing assertion changed.",
+      "local_result": "passed",
+      "behaviours": [
+        "DELETE /api/todos?completed=true returns 200 with the deleted count and calls deleteCompleted once",
+        "DELETE /api/todos without completed=true, or with another value or an extra or duplicate key, returns 422 and does not call deleteCompleted",
+        "the collection delete does not call the single-task delete"
+      ]
+    },
+    {
+      "source_file": "backend/src/features/todos/validators.ts",
+      "decision": "updated",
+      "test_files": [
+        "backend/tests/validators.test.ts"
+      ],
+      "reason": "New clearCompletedQuerySchema was untested; added accept and reject cases. The file keeps 100% coverage.",
+      "local_result": "passed",
+      "behaviours": [
+        "accepts only completed equal to the string 'true'",
+        "rejects an empty query, 'false', '1', a boolean, an array and extra keys"
+      ]
+    },
+    {
+      "source_file": "frontend/src/features/todos/api/todos.ts",
+      "decision": "updated",
+      "test_files": [
+        "frontend/src/features/todos/api/todos.test.ts"
+      ],
+      "reason": "New clearCompleted API call had no test; added one case.",
+      "local_result": "passed",
+      "behaviours": [
+        "clearCompleted sends DELETE to /todos?completed=true and resolves with the deleted count"
+      ]
+    },
+    {
+      "source_file": "frontend/src/features/todos/components/ClearCompletedDialog.tsx",
+      "decision": "created",
+      "test_files": [
+        "frontend/src/features/todos/components/ClearCompletedDialog.test.tsx"
+      ],
+      "reason": "New component without a test. Line coverage is 100%. The only untaken branch is the 'if (pending) return' guard on line 18, which the disabled buttons make unreachable through the UI.",
+      "local_result": "passed",
+      "behaviours": [
+        "singular and plural confirmation text for the completed count",
+        "shows the mutation error and cancel closes without clearing",
+        "confirming calls the mutation and reports the deleted count",
+        "a failed clear is not reported, the dialog stays open and retry works",
+        "locked controls and no mutation while pending or while the page is busy"
+      ]
+    },
+    {
+      "source_file": "frontend/src/features/todos/hooks/useClearCompletedMutation.ts",
+      "decision": "created",
+      "test_files": [
+        "frontend/src/features/todos/hooks/useClearCompletedMutation.test.ts"
+      ],
+      "reason": "New hook without a test; covers the cache effects with a real QueryClient.",
+      "local_result": "passed",
+      "behaviours": [
+        "removes completed tasks from the cached list and returns the deleted count",
+        "does not create a list when none is cached",
+        "keeps the cache and exposes the error when clearing fails",
+        "cancels an in-flight list refetch so stale data cannot restore completed tasks"
+      ]
+    },
+    {
+      "source_file": "frontend/src/features/todos/TodosPage.tsx",
+      "decision": "updated",
+      "test_files": [
+        "frontend/src/features/todos/TodosPage.test.tsx"
+      ],
+      "reason": "New clear-completed button and dialog wiring had no tests; added cases and a mock of ClearCompletedDialog next to the existing child mocks. TodosPage.tsx has 100% coverage.",
+      "local_result": "passed",
+      "behaviours": [
+        "the Clear completed (n) button shows only when completed tasks exist",
+        "the button is disabled and opens nothing while the page is busy",
+        "opens the dialog with the completed count and busy state, and closes on cancel without a notice",
+        "announces 'Cleared 1 completed task.' for one task and 'Cleared N completed tasks.' otherwise, then closes the dialog"
+      ]
+    }
+  ],
+  "findings": [
+    {
+      "kind": "other",
+      "file": "backend/tests/router.test.ts",
+      "line": 8,
+      "detail": "The shared setup() store mock gained a deleteCompleted mock. This is not an assertion change: TodoStore now requires the method, and without it npm run typecheck fails on the existing mock."
+    }
+  ],
+  "skills_used": [
+    "analyzing-test-impact",
+    "writing-backend-unit-tests",
+    "writing-frontend-unit-tests",
+    "running-unit-tests"
+  ]
+}
