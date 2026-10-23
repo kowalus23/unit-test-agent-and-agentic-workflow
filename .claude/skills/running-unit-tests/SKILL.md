@@ -5,7 +5,7 @@ description: Runs this repository's Vitest unit tests for the backend or fronten
 
 # Running unit tests
 
-There is exactly one way to run tests, and one way to type-check. Other shell commands are blocked by policy, so do not try `npx`, `npm test`, `cd`, pipes or redirects.
+There is exactly one way to run tests, and one way to type-check. Other shell commands are blocked by policy, so do not try `npx`, `npm test`, `cd`, pipes or redirects. Run every command as its own Bash call: chaining with `;`, `&&` or `||` is blocked too.
 
 ## Commands
 

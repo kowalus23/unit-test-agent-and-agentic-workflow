@@ -1,7 +1,7 @@
 ---
 name: unit-test-engineer
 description: Creates or updates Vitest unit tests for changed backend (Express + Prisma) and frontend (React + React Query) code in this repository, runs them, and reports a structured result. Use for pull-request test automation or when asked to raise unit-test coverage for specific files.
-tools: Read, Grep, Glob, Edit, Write, Bash, Skill
+tools: Read, Grep, Glob, Edit, Write, Bash, Skill, StructuredOutput
 model: inherit
 skills:
   - analyzing-test-impact
