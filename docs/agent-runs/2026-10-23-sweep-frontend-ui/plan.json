@@ -1,0 +1,132 @@
+{
+  "version": 1,
+  "mode": "sweep",
+  "base_sha": null,
+  "head_sha": "cba4619b8e4aac4f0119344f36417591adab217a",
+  "run_agent": true,
+  "skip_reason": null,
+  "agent_commit": false,
+  "targets": [
+    {
+      "package": "frontend",
+      "source": "frontend/src/app/AppProviders.tsx",
+      "status": "existing",
+      "kind": "component",
+      "changed_lines": "all",
+      "changed_line_count": 23,
+      "owner_test": "frontend/src/app/AppProviders.test.tsx",
+      "owner_test_exists": false,
+      "related_tests": []
+    },
+    {
+      "package": "frontend",
+      "source": "frontend/src/features/todos/components/DeleteTodoDialog.tsx",
+      "status": "existing",
+      "kind": "component",
+      "changed_lines": "all",
+      "changed_line_count": 48,
+      "owner_test": "frontend/src/features/todos/components/DeleteTodoDialog.test.tsx",
+      "owner_test_exists": true,
+      "related_tests": [
+        "frontend/src/features/todos/TodosPage.test.tsx"
+      ]
+    },
+    {
+      "package": "frontend",
+      "source": "frontend/src/features/todos/components/TodoEditor.tsx",
+      "status": "existing",
+      "kind": "component",
+      "changed_lines": "all",
+      "changed_line_count": 51,
+      "owner_test": "frontend/src/features/todos/components/TodoEditor.test.tsx",
+      "owner_test_exists": true,
+      "related_tests": [
+        "frontend/src/features/todos/TodosPage.test.tsx"
+      ]
+    },
+    {
+      "package": "frontend",
+      "source": "frontend/src/features/todos/components/TodoEmptyState.tsx",
+      "status": "existing",
+      "kind": "component",
+      "changed_lines": "all",
+      "changed_line_count": 34,
+      "owner_test": "frontend/src/features/todos/components/TodoEmptyState.test.tsx",
+      "owner_test_exists": false,
+      "related_tests": [
+        "frontend/src/features/todos/components/TodoList.test.tsx"
+      ]
+    },
+    {
+      "package": "frontend",
+      "source": "frontend/src/features/todos/components/TodoForm.tsx",
+      "status": "existing",
+      "kind": "component",
+      "changed_lines": "all",
+      "changed_line_count": 114,
+      "owner_test": "frontend/src/features/todos/components/TodoForm.test.tsx",
+      "owner_test_exists": true,
+      "related_tests": [
+        "frontend/src/features/todos/components/TodoEditor.test.tsx"
+      ]
+    },
+    {
+      "package": "frontend",
+      "source": "frontend/src/features/todos/components/TodoItem.tsx",
+      "status": "existing",
+      "kind": "component",
+      "changed_lines": "all",
+      "changed_line_count": 88,
+      "owner_test": "frontend/src/features/todos/components/TodoItem.test.tsx",
+      "owner_test_exists": true,
+      "related_tests": [
+        "frontend/src/features/todos/components/TodoList.test.tsx"
+      ]
+    },
+    {
+      "package": "frontend",
+      "source": "frontend/src/features/todos/components/TodoList.tsx",
+      "status": "existing",
+      "kind": "component",
+      "changed_lines": "all",
+      "changed_line_count": 63,
+      "owner_test": "frontend/src/features/todos/components/TodoList.test.tsx",
+      "owner_test_exists": true,
+      "related_tests": [
+        "frontend/src/features/todos/TodosPage.test.tsx"
+      ]
+    },
+    {
+      "package": "frontend",
+      "source": "frontend/src/features/todos/TodosPage.tsx",
+      "status": "existing",
+      "kind": "component",
+      "changed_lines": "all",
+      "changed_line_count": 113,
+      "owner_test": "frontend/src/features/todos/TodosPage.test.tsx",
+      "owner_test_exists": true,
+      "related_tests": []
+    }
+  ],
+  "dropped_targets": [],
+  "ignored": [],
+  "deleted_sources": [],
+  "author_test_changes": [],
+  "flags": {
+    "dependencies_changed": false,
+    "agent_config_changed": false,
+    "test_config_changed": false,
+    "database_changed": false,
+    "injection_suspected": false,
+    "injection_signals": []
+  },
+  "routing": {
+    "tier": "sweep",
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "max_turns": 120,
+    "max_budget_usd": 8,
+    "escalation_tier": null,
+    "reason": "sweep mode"
+  }
+}
