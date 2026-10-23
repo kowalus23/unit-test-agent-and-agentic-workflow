@@ -145,7 +145,7 @@ export function renderReport(input: ReportInput): string {
       lines.push('**Rejected by the patch guard:**', ...verdict.guard.violations.map((violation) => `- ${code(violation.path)}: ${violation.rule} (${violation.detail})`), '');
     }
     if (packages.length > 0) {
-      lines.push('| Package | Verdict | Agent tests | Full suite | Stability | Type check | Line coverage |', '|---|---|---|---|---|---|---|');
+      lines.push('| Package | Verdict | Tests in changed files | Full suite | Stability | Type check | Line coverage |', '|---|---|---|---|---|---|---|');
       for (const [name, pkg] of packages) {
         lines.push(
           `| ${name} | ${pkg.status === 'accepted' ? '✅ accepted' : '❌ rejected'} | ${pkg.new_tests.passed} passed, ${pkg.new_tests.failed} failed | ${pkg.patched ? `${pkg.patched.passed} passed, ${pkg.patched.failed} failed` : 'n/a'} | ${pkg.stability ? `${pkg.stability.runs} shuffled runs${pkg.stability.failures.length ? `, ${pkg.stability.failures.length} failure(s)` : ', stable'}` : 'n/a'} | ${pkg.typecheck ? (pkg.typecheck.patched ? 'passes' : 'fails') : 'n/a'} | ${pkg.coverage ? `${pkg.coverage.lines_before ?? 'n/a'}% → ${pkg.coverage.lines_after ?? 'n/a'}%` : 'n/a'} |`,
