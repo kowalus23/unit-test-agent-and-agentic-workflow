@@ -128,17 +128,12 @@ jobs:
           git -C pr add -A
           git -C pr -c user.name=unit-test-agent -c user.email=unit-test-agent@localhost \
             commit --quiet --allow-empty --no-verify -m "ci: use the base branch agent configuration"
-      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+      - id: runtime
+        name: Prepare the agent runtime (pinned CLI, sandbox, no sudo)
+        # Deliberately the base-branch checkout: `$/...` would load the action from the PR's commit.
+        uses: ./trusted/.github/actions/agent-runtime # zizmor: ignore[self-repository]
         with:
-          node-version-file: trusted/.nvmrc
-          package-manager-cache: false
-      - name: Install the pinned Claude Code CLI (trusted lockfile)
-        working-directory: trusted/.github/agent-runtime
-        run: |
-          npm ci --ignore-scripts
-          # Links the platform binary from the integrity-checked optional dependency (no network).
-          node node_modules/@anthropic-ai/claude-code/install.cjs
-          node_modules/.bin/claude --version
+          trusted-path: trusted
       - name: Install PR dependencies (lifecycle scripts disabled)
         run: |
           set -euo pipefail
@@ -148,33 +143,18 @@ jobs:
         with:
           name: unit-test-agent-plan
           path: ${{ runner.temp }}/plan
-      - name: Enable the subprocess sandbox (bubblewrap + socat)
-        # With CLAUDE_CODE_SUBPROCESS_ENV_SCRUB=1 Claude Code runs every agent subprocess (including
-        # the PR's tests) in bubblewrap: no credentials in its environment and no view of the agent
-        # process; socat carries the sandbox's network proxy (no domains are allowed). Ubuntu 24.04
-        # blocks unprivileged user namespaces via AppArmor, so bwrap gets a narrow profile.
-        # Verified here, before the model key is used.
-        run: |
-          set -euo pipefail
-          sudo apt-get update -qq
-          sudo apt-get install -y -qq --no-install-recommends bubblewrap socat
-          printf '%s\n' 'abi <abi/4.0>,' 'include <tunables/global>' 'profile bwrap /usr/bin/bwrap flags=(unconfined) {' '  userns,' '}' \
-            | sudo tee /etc/apparmor.d/bwrap > /dev/null
-          sudo apparmor_parser -r /etc/apparmor.d/bwrap
-          bwrap --ro-bind / / --dev /dev --proc /proc --unshare-pid --die-with-parent true
-          socat -V > /dev/null
-          echo "bubblewrap $(bwrap --version) works with an isolated PID namespace; socat at $(command -v socat)"
       - name: Run the unit-test agent
         env:
           # The only secret in the workflow, scoped to this step. No GitHub token is passed on.
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          CLAUDE_BIN: ${{ steps.runtime.outputs.claude }}
         run: |
           node trusted/scripts/agent/run-agent.ts \
             --repo pr \
             --plan "$RUNNER_TEMP/plan/plan.json" \
             --out "$RUNNER_TEMP/agent" \
-            --claude "$GITHUB_WORKSPACE/trusted/.github/agent-runtime/node_modules/.bin/claude" \
+            --claude "$CLAUDE_BIN" \
             --escalate
           jq . "$RUNNER_TEMP/agent/metrics.json"
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
@@ -185,6 +165,7 @@ jobs:
             ${{ runner.temp }}/agent/agent-result.json
             ${{ runner.temp }}/agent/guard.json
             ${{ runner.temp }}/agent/metrics.json
+            ${{ runner.temp }}/agent/attempt-*-result.json
           retention-days: 3
           if-no-files-found: error
 

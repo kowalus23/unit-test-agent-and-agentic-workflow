@@ -255,6 +255,8 @@ function main(): void {
     const guard = checkPatch(policy, patch);
     attempt.escalation_reason = escalationReason(attempt, result, guard.ok);
     attempts.push(attempt);
+    // Every attempt's narrative is kept, so an escalation can be explained afterwards.
+    writeFileSync(join(out, `attempt-${attempts.length}-result.json`), `${JSON.stringify(result, null, 2)}\n`);
     final = { result, patch, guard };
     console.log(`  -> ${attempt.status}, ${attempt.turns} turns, $${attempt.cost_usd.toFixed(4)}${attempt.escalation_reason ? `, not accepted: ${attempt.escalation_reason}` : ''}`);
     const next: TierName | null = tier === 'sweep' ? null : policy.routing.escalation[tier];

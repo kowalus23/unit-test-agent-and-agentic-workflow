@@ -1,0 +1,67 @@
+# Prepares a runner to execute the unit-test agent: Node.js from .nvmrc, the
+# Claude Code CLI pinned by the trusted lockfile, and the subprocess sandbox.
+#
+# Always referenced from the trusted (base) checkout, e.g.
+#   uses: ./trusted/.github/actions/agent-runtime
+name: Unit-test agent runtime
+description: Pinned Claude Code CLI, bubblewrap/socat subprocess sandbox, and no sudo for the rest of the job.
+
+inputs:
+  trusted-path:
+    description: Path of the trusted checkout that holds .nvmrc and .github/agent-runtime.
+    required: true
+
+outputs:
+  claude:
+    description: Absolute path of the pinned Claude Code binary.
+    value: ${{ steps.cli.outputs.claude }}
+
+runs:
+  using: composite
+  steps:
+    - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+      with:
+        node-version-file: ${{ inputs.trusted-path }}/.nvmrc
+        package-manager-cache: false
+
+    - id: cli
+      name: Install the pinned Claude Code CLI (trusted lockfile)
+      shell: bash
+      working-directory: ${{ inputs.trusted-path }}/.github/agent-runtime
+      run: |
+        set -euo pipefail
+        npm ci --ignore-scripts
+        # Links the platform binary from the integrity-checked optional dependency (no network).
+        node node_modules/@anthropic-ai/claude-code/install.cjs
+        node_modules/.bin/claude --version
+        echo "claude=$PWD/node_modules/.bin/claude" >> "$GITHUB_OUTPUT"
+
+    - name: Enable the subprocess sandbox (bubblewrap + socat)
+      # With CLAUDE_CODE_SUBPROCESS_ENV_SCRUB=1 Claude Code runs every agent subprocess (including
+      # the code under test) in bubblewrap: no credentials in its environment and no view of the
+      # agent process; socat carries the sandbox's network proxy (no domains are allowed).
+      # Ubuntu 24.04 blocks unprivileged user namespaces via AppArmor, so bwrap gets a narrow
+      # profile. Verified here, before the model key is used.
+      shell: bash
+      run: |
+        set -euo pipefail
+        sudo apt-get update -qq
+        sudo apt-get install -y -qq --no-install-recommends bubblewrap socat
+        printf '%s\n' 'abi <abi/4.0>,' 'include <tunables/global>' 'profile bwrap /usr/bin/bwrap flags=(unconfined) {' '  userns,' '}' \
+          | sudo tee /etc/apparmor.d/bwrap > /dev/null
+        sudo apparmor_parser -r /etc/apparmor.d/bwrap
+        bwrap --ro-bind / / --dev /dev --proc /proc --unshare-pid --die-with-parent true
+        socat -V > /dev/null
+        echo "bubblewrap $(bwrap --version) works with an isolated PID namespace; socat at $(command -v socat)"
+
+    - name: Drop passwordless sudo for the rest of the job
+      # Everything after this step may run code from the pull request (dependency CLIs, tests).
+      shell: bash
+      run: |
+        set -euo pipefail
+        sudo find /etc/sudoers.d -type f -exec grep -l "^\\s*$(id -un)\\s" {} + | xargs --no-run-if-empty sudo rm -f
+        if sudo -n true 2> /dev/null; then
+          echo "::error::sudo is still available; refusing to run untrusted code with root access"
+          exit 1
+        fi
+        echo "sudo removed for $(id -un)"

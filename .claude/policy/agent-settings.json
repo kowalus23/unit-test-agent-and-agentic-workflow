@@ -20,18 +20,15 @@
     "deny": [
       "WebFetch",
       "WebSearch",
-      "Read(//proc/**)",
       "Read(./.env)",
-      "Read(./**/.env)",
-      "Read(./**/.env.*)",
+      "Read(./.env.*)",
+      "Read(./backend/.env*)",
+      "Read(./frontend/.env*)",
       "Edit(./.claude/**)",
       "Edit(./.github/**)",
       "Edit(./scripts/**)",
       "Edit(./backend/src/**)",
-      "Edit(./**/package.json)",
-      "Edit(./**/package-lock.json)",
-      "Edit(./**/vitest.config.ts)",
-      "Edit(./**/vite.config.ts)"
+      "Edit(./backend/prisma/**)"
     ]
   },
   "env": {
