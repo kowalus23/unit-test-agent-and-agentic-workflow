@@ -1,0 +1,53 @@
+{
+  "decision": "tests_added",
+  "summary": "Sweep mode, 2 backend targets. Created backend/tests/factory.test.ts for createApp and its error handling, and appended cases to backend/tests/router.test.ts for the remaining todos routes. Both files pass, the full backend suite passes (75 tests) and the backend type check passes. No bugs were found.",
+  "targets": [
+    {
+      "source_file": "backend/src/factory.ts",
+      "decision": "created",
+      "test_files": [
+        "backend/tests/factory.test.ts"
+      ],
+      "behaviours": [
+        "GET /api/todos serves tasks through the repository and the Prisma findMany delegate",
+        "GET /api/health is mounted under /api and answers status ok",
+        "Unknown routes and methods answer 404 with detail Not Found",
+        "Malformed JSON and a null body answer 422 with detail Invalid JSON. and do not call create",
+        "Bodies over the size limit answer 413 with detail Request body too large. and do not call create",
+        "Unexpected errors answer 500 with a generic detail, hide the error message and log the error",
+        "The x-powered-by header is not sent",
+        "GET /openapi.json serves the OpenAPI document and /docs redirects to /docs/",
+        "Errors after headers were sent are passed on to Express and not logged by the handler"
+      ],
+      "reason": "No owner test existed. Created it with supertest on createApp and Prisma delegate spies on a closed-port client. The latest run passed and printed 100% line and branch coverage for the file.",
+      "local_result": "passed"
+    },
+    {
+      "source_file": "backend/src/features/todos/router.ts",
+      "decision": "updated",
+      "test_files": [
+        "backend/tests/router.test.ts"
+      ],
+      "behaviours": [
+        "GET /api/todos/{id} returns 200 with the task and calls get with the numeric ID",
+        "GET, PATCH and DELETE /api/todos/{id} return 404 with detail Task not found. when the task is missing",
+        "Invalid task IDs answer 422 with an issue array and do not call get",
+        "PATCH and DELETE with an invalid ID answer 422 and do not call update or delete",
+        "PATCH /api/todos/{id} trims input and calls update with the numeric ID",
+        "PATCH with an empty body answers 422 with the at-least-one-field message and does not call update",
+        "DELETE /api/todos/{id} answers 204 with an empty body and calls delete with the numeric ID",
+        "POST with an invalid title reports the title field in the 422 issues and does not call create"
+      ],
+      "reason": "The owner test covered only list and create. Appended cases for get, update, delete, ID validation and 404s, keeping existing cases. The latest run passed with 100% line and branch coverage for the file.",
+      "local_result": "passed"
+    }
+  ],
+  "findings": [],
+  "skills_used": [
+    "analyzing-test-impact",
+    "writing-backend-unit-tests",
+    "running-unit-tests",
+    "reviewing-test-quality",
+    "reporting-test-results"
+  ]
+}
