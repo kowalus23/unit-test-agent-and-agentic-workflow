@@ -64,6 +64,18 @@ describe('selectTodos', () => {
     ])
   })
 
+  it('keeps tasks without a due date last and orders them by newest id when sorting by due date', () => {
+    const dated: Todo = { ...base, id: 1, due_date: '2026-11-01' }
+    const undatedOld: Todo = { ...base, id: 2 }
+    const undatedNew: Todo = { ...base, id: 3 }
+    expect(
+      selectTodos([undatedOld, undatedNew, dated], 'all', '', 'due'),
+    ).toEqual([dated, undatedNew, undatedOld])
+    expect(
+      selectTodos([dated, undatedOld, undatedNew], 'all', '', 'due'),
+    ).toEqual([dated, undatedNew, undatedOld])
+  })
+
   it('sorts newest by creation time and breaks ties by id', () => {
     const oldest: Todo = { ...base, id: 9, created_at: '2026-09-01T12:00:00Z' }
     const newest: Todo = { ...base, id: 1, created_at: '2026-10-05T12:00:00Z' }
