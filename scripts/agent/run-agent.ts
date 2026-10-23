@@ -120,6 +120,21 @@ function settingsFor(policy: TestPolicy, plan: Plan, tier: TierName | 'sweep'): 
 
 type AgentRun = { attempt: Attempt; result: unknown };
 
+/** First meaningful error line of the CLI's stderr (code frames and stack lines dropped). */
+export function errorSummary(stderr: string): string {
+  const lines = stderr
+    .split('\n')
+    .map((line) => line.trim())
+    .filter((line) => line !== '' && !/^\d+ \|/.test(line) && !line.startsWith('at ') && !/^Bun v/.test(line));
+  const error = lines.find((line) => /error/i.test(line)) ?? lines[0] ?? 'no output';
+  return error.slice(0, 300);
+}
+
+/** Escalating only helps when the model actually worked; setup failures repeat on every tier. */
+export function canEscalate(attempt: Attempt): boolean {
+  return attempt.turns > 0 && attempt.status !== 'launch_failed' && attempt.status !== 'timeout';
+}
+
 function runOnce(claude: string, repo: string, prompt: string, settings: AttemptSettings, out: string, index: number): AgentRun {
   const started = Date.now();
   const run = spawnSync(claude, buildClaudeArgs(prompt, settings, readFileSync(RESULT_SCHEMA, 'utf8')), {
@@ -149,7 +164,9 @@ function runOnce(claude: string, repo: string, prompt: string, settings: Attempt
   try {
     output = JSON.parse(run.stdout) as Record<string, unknown>;
   } catch {
-    return { attempt: { ...base, status: 'agent_error', subtype: `unparseable output (exit ${run.status})` }, result: null };
+    const reason = errorSummary(run.stderr ?? '');
+    console.log(`  CLI exited ${run.status} without a result: ${reason}`);
+    return { attempt: { ...base, status: 'launch_failed', subtype: reason }, result: null };
   }
   const denials = Array.isArray(output.permission_denials) ? output.permission_denials : [];
   const attempt: Attempt = {
@@ -241,7 +258,7 @@ function main(): void {
     final = { result, patch, guard };
     console.log(`  -> ${attempt.status}, ${attempt.turns} turns, $${attempt.cost_usd.toFixed(4)}${attempt.escalation_reason ? `, not accepted: ${attempt.escalation_reason}` : ''}`);
     const next: TierName | null = tier === 'sweep' ? null : policy.routing.escalation[tier];
-    tier = values.escalate && attempt.escalation_reason && next ? next : null;
+    tier = values.escalate && attempt.escalation_reason && canEscalate(attempt) && next ? next : null;
   }
 
   writeFileSync(join(out, 'agent.patch'), final!.patch);

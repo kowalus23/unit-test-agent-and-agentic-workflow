@@ -94,8 +94,11 @@ export function renderReport(input: ReportInput): string {
   const packages = verdict ? Object.entries(verdict.packages).filter(([, pkg]) => pkg.status !== 'not_touched') : [];
   const accepted = packages.filter(([, pkg]) => pkg.status === 'accepted');
   const proposedTests = accepted.reduce((sum, [, pkg]) => sum + pkg.new_tests.passed, 0);
+  const lastAttempt = metrics?.attempts?.[metrics.attempts.length - 1];
+  const agentFailed = !!metrics && metrics.status !== 'ok' && packages.length === 0;
   let headline: string;
   if (!verdict) headline = 'agent did not finish';
+  else if (agentFailed) headline = 'agent run failed';
   else if (!verdict.guard.ok) headline = 'patch rejected by policy';
   else if (packages.length === 0) headline = result?.decision === 'no_change_needed' ? 'no test changes needed' : 'no test changes proposed';
   else if (accepted.length === packages.length) headline = `${verdict.final_patch_files.length} verified test file(s) proposed`;
@@ -103,6 +106,12 @@ export function renderReport(input: ReportInput): string {
   else headline = 'proposed tests failed verification';
   lines.push(`## 🧪 Unit-test agent: ${headline}${head}`, '');
 
+  if (agentFailed) {
+    lines.push(
+      `**The agent run ended with status ${plain(metrics?.status, 40)}**${lastAttempt?.subtype ? `: ${plain(lastAttempt.subtype, 300)}` : ''}. No tests were proposed and the pull request is unchanged. This is an infrastructure or configuration problem, not a verdict on the code; see the workflow run.`,
+      '',
+    );
+  }
   if (result?.summary) lines.push(`> ${plain(result.summary, 1200)}`, '');
 
   const flags = plan.flags;

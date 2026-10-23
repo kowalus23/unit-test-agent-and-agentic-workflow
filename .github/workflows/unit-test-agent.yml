@@ -145,6 +145,20 @@ jobs:
         with:
           name: unit-test-agent-plan
           path: ${{ runner.temp }}/plan
+      - name: Enable the subprocess sandbox (bubblewrap)
+        # With CLAUDE_CODE_SUBPROCESS_ENV_SCRUB=1 Claude Code runs every agent subprocess (including
+        # the PR's tests) in bubblewrap: no credentials in its environment and no view of the agent
+        # process. Ubuntu 24.04 blocks unprivileged user namespaces via AppArmor, so bwrap gets a
+        # narrow profile. Verified here, before the model key is used.
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq --no-install-recommends bubblewrap
+          printf '%s\n' 'abi <abi/4.0>,' 'include <tunables/global>' 'profile bwrap /usr/bin/bwrap flags=(unconfined) {' '  userns,' '}' \
+            | sudo tee /etc/apparmor.d/bwrap > /dev/null
+          sudo apparmor_parser -r /etc/apparmor.d/bwrap
+          bwrap --ro-bind / / --dev /dev --proc /proc --unshare-pid --die-with-parent true
+          echo "bubblewrap $(bwrap --version) works with an isolated PID namespace"
       - name: Run the unit-test agent
         env:
           # The only secret in the workflow, scoped to this step. No GitHub token is passed on.

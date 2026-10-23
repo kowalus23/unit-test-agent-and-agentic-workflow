@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { describe, test } from 'node:test';
 import { plain, renderReport, REPORT_MARKER } from '../agent/render-report.ts';
-import { escalationReason, type Attempt } from '../agent/run-agent.ts';
+import { canEscalate, errorSummary, escalationReason, type Attempt } from '../agent/run-agent.ts';
 import { readFileSync } from 'node:fs';
 import { extractJsonBlock, loadSchema, validate } from '../../.claude/lib/json-schema.ts';
 import { buildCommitInput } from '../agent/apply-commit.ts';
@@ -160,5 +160,28 @@ describe('agent result schema', () => {
     const { findings: _findings, ...missing } = base;
     assert.ok(validate(schema, missing).some((error) => error.includes('findings: required')));
     assert.ok(validate(schema, { ...base, findings: [{ kind: 'suspected_bug', file: 'a', detail: 'b', line: 0 }] }).some((error) => error.includes('below')));
+  });
+});
+
+describe('setup failures', () => {
+  test('summarizes the CLI error line and never escalates when the model did not run', () => {
+    const stderr = ' 6 | // code frame\nerror: bubblewrap is required for subprocess env scrubbing\n      at EKo (/$bunfs/root/chunk.js:11:7200)\nBun v1.4.4 (Linux arm64)\n';
+    assert.equal(errorSummary(stderr), 'error: bubblewrap is required for subprocess env scrubbing');
+    assert.equal(canEscalate({ status: 'launch_failed', turns: 0 } as Attempt), false);
+    assert.equal(canEscalate({ status: 'timeout', turns: 5 } as Attempt), false);
+    assert.equal(canEscalate({ status: 'agent_error', turns: 30 } as Attempt), true, 'max turns reached: a bigger tier may finish');
+    assert.equal(canEscalate({ status: 'ok', turns: 12 } as Attempt), true);
+  });
+
+  test('reports a failed agent run as a failure, not as "no changes"', () => {
+    const report = renderReport({
+      plan: { version: 1, mode: 'pr', base_sha: 'b', head_sha: 'h', run_agent: true, skip_reason: null, targets: [], dropped_targets: [], ignored: [], deleted_sources: [], author_test_changes: [], flags: { dependencies_changed: false, agent_config_changed: false, test_config_changed: false, database_changed: false, injection_suspected: false, injection_signals: [] }, routing: { tier: 'S', model: 'm', effort: 'medium', max_turns: 1, max_budget_usd: 1, escalation_tier: null, reason: 'r' } },
+      metrics: { status: 'launch_failed', attempts: [{ status: 'launch_failed', subtype: 'error: bubblewrap is required', turns: 0 } as Attempt] },
+      result: null,
+      verdict: { version: 1, head_sha: 'h', guard: { ok: true, violations: [], notices: [], files: [] }, packages: { backend: { status: 'not_touched', reasons: [], test_files: [], typecheck: null, baseline: null, patched: null, new_tests: { passed: 0, failed: 0 }, stability: null, coverage: null }, frontend: { status: 'not_touched', reasons: [], test_files: [], typecheck: null, baseline: null, patched: null, new_tests: { passed: 0, failed: 0 }, stability: null, coverage: null } }, targets: [], final_patch_files: [], formatted_files: [] },
+      finalPatch: '',
+    });
+    assert.match(report, /agent run failed/);
+    assert.match(report, /bubblewrap is required/);
   });
 });
