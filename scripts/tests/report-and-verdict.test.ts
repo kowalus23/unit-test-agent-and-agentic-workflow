@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { describe, test } from 'node:test';
-import { markApplied, plain, renderReport, REPORT_MARKER } from '../agent/render-report.ts';
+import { markApplied, plain, plainCapped, renderReport, REPORT_MARKER } from '../agent/render-report.ts';
 import { canEscalate, errorSummary, escalationReason, type Attempt } from '../agent/run-agent.ts';
 import { readFileSync } from 'node:fs';
 import { extractJsonBlock, loadSchema, validate } from '../../.claude/lib/json-schema.ts';
@@ -15,7 +15,9 @@ describe('plain()', () => {
   });
   test('neutralizes markdown control characters and caps length', () => {
     assert.equal(plain('a|b `c`'), 'a\\|b \\`c\\`');
-    assert.equal(plain('x'.repeat(50), 10).length, 10);
+    assert.equal(plainCapped('x'.repeat(50), 10), `${'x'.repeat(9)}…`);
+    assert.equal(plainCapped('a & b', 3), 'a…', 'never leaves half an escape');
+    assert.equal(plainCapped('short', 10), 'short');
     assert.equal(plain(undefined), '');
   });
 });

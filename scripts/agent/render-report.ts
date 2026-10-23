@@ -31,7 +31,7 @@ type Metrics = { status: string; reason?: string; total_cost_usd?: number; total
 export type ReportInput = { plan: Plan | null; metrics: Metrics | null; result: unknown; verdict: Verdict | null; finalPatch: string; runUrl?: string };
 
 /** Reduces model-written text to safe, single-line plain text. */
-export function plain(text: unknown, max = 500): string {
+export function plain(text: unknown): string {
   if (typeof text !== 'string') return '';
   return text
     .replace(/&/g, '&amp;')
@@ -45,8 +45,14 @@ export function plain(text: unknown, max = 500): string {
     .replace(/[`*_~|\\]/g, (char) => `\\${char}`)
     .replace(/[\u0000-\u001f\u007f‪-‮⁦-⁩​-‍⁠﻿]/g, (char) => (char === '​' ? char : ' '))
     .replace(/\s+/g, ' ')
-    .trim()
-    .slice(0, max);
+    .trim();
+}
+
+/** plain() capped at `max` characters; a cut is marked with an ellipsis and never splits an escape. */
+export function plainCapped(text: unknown, max = 500): string {
+  const flat = plain(text);
+  if (flat.length <= max) return flat;
+  return `${flat.slice(0, max - 1).replace(/&[a-z]*$|\\$/, '').trimEnd()}…`;
 }
 
 /** Inline code for trusted, policy-validated repository paths. */
@@ -111,11 +117,11 @@ export function renderReport(input: ReportInput): string {
 
   if (agentFailed) {
     lines.push(
-      `**The agent run ended with status ${plain(metrics?.status, 40)}**${lastAttempt?.subtype ? `: ${plain(lastAttempt.subtype, 300)}` : ''}. No tests were proposed and the pull request is unchanged. This is an infrastructure or configuration problem, not a verdict on the code; see the workflow run.`,
+      `**The agent run ended with status ${plainCapped(metrics?.status, 40)}**${lastAttempt?.subtype ? `: ${plainCapped(lastAttempt.subtype, 300)}` : ''}. No tests were proposed and the pull request is unchanged. This is an infrastructure or configuration problem, not a verdict on the code; see the workflow run.`,
       '',
     );
   }
-  if (result?.summary) lines.push(`> ${plain(result.summary, 1200)}`, '');
+  if (result?.summary) lines.push(`> ${plainCapped(result.summary, 1200)}`, '');
 
   const flags = plan.flags;
   const warnings = [
@@ -134,7 +140,7 @@ export function renderReport(input: ReportInput): string {
     const coverage = verdict?.targets.find((entry) => entry.source === target.source);
     const tests = (decision?.test_files ?? []).filter((file) => verdict?.guard.files.some((entry) => entry.path === file) || file === target.owner_test);
     lines.push(
-      `| ${code(target.source)} | ${decision ? plain(decision.decision, 30) : 'not reported'} | ${tests.map(code).join('<br>') || '—'} | ${pct(coverage?.before)} → ${pct(coverage?.after)} | ${plain(decision?.reason ?? '', 300) || '—'} |`,
+      `| ${code(target.source)} | ${decision ? plainCapped(decision.decision, 30) : 'not reported'} | ${tests.map(code).join('<br>') || '—'} | ${pct(coverage?.before)} → ${pct(coverage?.after)} | ${plainCapped(decision?.reason ?? '', 300) || '—'} |`,
     );
   }
   lines.push('');
@@ -151,7 +157,7 @@ export function renderReport(input: ReportInput): string {
           `| ${name} | ${pkg.status === 'accepted' ? '✅ accepted' : '❌ rejected'} | ${pkg.new_tests.passed} passed, ${pkg.new_tests.failed} failed | ${pkg.patched ? `${pkg.patched.passed} passed, ${pkg.patched.failed} failed` : 'n/a'} | ${pkg.stability ? `${pkg.stability.runs} shuffled runs${pkg.stability.failures.length ? `, ${pkg.stability.failures.length} failure(s)` : ', stable'}` : 'n/a'} | ${pkg.typecheck ? (pkg.typecheck.patched ? 'passes' : 'fails') : 'n/a'} | ${pkg.coverage ? `${pkg.coverage.lines_before ?? 'n/a'}% → ${pkg.coverage.lines_after ?? 'n/a'}%` : 'n/a'} |`,
         );
       }
-      for (const [name, pkg] of packages) if (pkg.reasons.length > 0) lines.push(`- **${name}:** ${pkg.reasons.map((reason) => plain(reason, 300)).join('; ')}`);
+      for (const [name, pkg] of packages) if (pkg.reasons.length > 0) lines.push(`- **${name}:** ${pkg.reasons.map((reason) => plainCapped(reason, 300)).join('; ')}`);
       lines.push('');
     }
     if (verdict.guard.notices.length > 0) lines.push(...verdict.guard.notices.map((notice) => `- ⚠️ ${code(notice.path)}: ${notice.detail}`), '');
@@ -160,8 +166,8 @@ export function renderReport(input: ReportInput): string {
   if (result && result.findings.length > 0) {
     lines.push('### Findings', '');
     for (const finding of result.findings.slice(0, 20)) {
-      const where = `${plain(finding.file, 200)}${typeof finding.line === 'number' ? `:${finding.line}` : ''}`;
-      lines.push(`- ${FINDING_LABEL[finding.kind] ?? FINDING_LABEL.other} in ${where}: ${plain(finding.detail, 600)}`);
+      const where = `${plainCapped(finding.file, 200)}${typeof finding.line === 'number' ? `:${finding.line}` : ''}`;
+      lines.push(`- ${FINDING_LABEL[finding.kind] ?? FINDING_LABEL.other} in ${where}: ${plainCapped(finding.detail, 600)}`);
     }
     lines.push('');
   }
@@ -189,11 +195,11 @@ export function renderReport(input: ReportInput): string {
   if (metrics) {
     const attempts = metrics.attempts ?? [];
     const last = attempts[attempts.length - 1];
-    const route = plan.routing ? `tier ${plan.routing.tier} (${plain(plan.routing.reason, 160)})` : '';
+    const route = plan.routing ? `tier ${plan.routing.tier} (${plainCapped(plan.routing.reason, 160)})` : '';
     const models = attempts.map((attempt) => `${attempt.model} ${attempt.effort}`).join(' → ');
     lines.push(
       '<sub>',
-      `${route} · ${models || 'no model call'} · ${metrics.total_turns ?? 0} turns · ${money(metrics.total_cost_usd)} · ${duration(metrics.total_duration_ms)}${attempts.length > 1 ? ` · ${attempts.length} attempts (escalated: ${plain(attempts[0].escalation_reason ?? '', 120)})` : ''}${last && last.status !== 'ok' ? ` · last attempt: ${last.status}` : ''}${result?.skills_used.length ? ` · skills: ${result.skills_used.map((skill) => plain(skill, 60)).join(', ')}` : ''}`,
+      `${route} · ${models || 'no model call'} · ${metrics.total_turns ?? 0} turns · ${money(metrics.total_cost_usd)} · ${duration(metrics.total_duration_ms)}${attempts.length > 1 ? ` · ${attempts.length} attempts (escalated: ${plainCapped(attempts[0].escalation_reason ?? '', 120)})` : ''}${last && last.status !== 'ok' ? ` · last attempt: ${last.status}` : ''}${result?.skills_used.length ? ` · skills: ${result.skills_used.map((skill) => plainCapped(skill, 60)).join(', ')}` : ''}`,
       '</sub>',
     );
   }
