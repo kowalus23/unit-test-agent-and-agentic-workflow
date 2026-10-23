@@ -4,8 +4,10 @@
 // Usage: node scripts/agent/render-report.ts --dir <artifacts> [--run-url <url>] [--out report.md]
 //   <dir> may contain plan.json, metrics.json, agent-result.json, verdict.json, final.patch.
 //
-// Agent-written text is untrusted: it is reduced to plain text before rendering
-// so it cannot add links, images, HTML or @mentions to a public page.
+// Everything in the artifacts is untrusted: model text, and verdict/metrics fields
+// written by jobs that ran the PR's code. Text is reduced to plain text and numbers
+// are checked before rendering, so nothing can add links, images, HTML or @mentions
+// to a public page.
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
@@ -55,18 +57,22 @@ export function plainCapped(text: unknown, max = 500): string {
   return `${flat.slice(0, max - 1).replace(/&[a-z]*$|\\$/, '').trimEnd()}…`;
 }
 
-/** Inline code for trusted, policy-validated repository paths. */
-const code = (path: string) => `\`${path.replace(/`/g, '')}\``;
+/** Inline code for repository paths; backticks, pipes and control characters are dropped. */
+const code = (path: unknown) => `\`${String(path).replace(/[`|\u0000-\u001f\u007f]/g, '')}\``;
+/** A finite number from an artifact, or 0. */
+const num = (value: unknown) => (typeof value === 'number' && Number.isFinite(value) ? value : 0);
+/** A percentage from an artifact, or n/a. */
+const percent = (value: unknown) => (typeof value === 'number' && Number.isFinite(value) ? `${value}%` : 'n/a');
 
 /** Only a result that fully matches the schema is rendered; anything else is treated as missing. */
 function isAgentResult(value: unknown): value is AgentResult {
   return value !== null && value !== undefined && validate(loadSchema(), value).length === 0;
 }
 
-const pct = (coverage: FileCoverage | null | undefined) => (coverage ? `${coverage.lines.pct}%` : 'n/a');
-const money = (value: number | undefined) => `$${(value ?? 0).toFixed(2)}`;
+const pct = (coverage: FileCoverage | null | undefined) => percent(coverage?.lines?.pct);
+const money = (value: number | undefined) => `$${num(value).toFixed(2)}`;
 const duration = (ms: number | undefined) => {
-  const seconds = Math.round((ms ?? 0) / 1000);
+  const seconds = Math.round(num(ms) / 1000);
   return seconds >= 60 ? `${Math.floor(seconds / 60)}m ${seconds % 60}s` : `${seconds}s`;
 };
 
@@ -102,7 +108,7 @@ export function renderReport(input: ReportInput): string {
 
   const packages = verdict ? Object.entries(verdict.packages).filter(([, pkg]) => pkg.status !== 'not_touched') : [];
   const accepted = packages.filter(([, pkg]) => pkg.status === 'accepted');
-  const proposedTests = accepted.reduce((sum, [, pkg]) => sum + pkg.new_tests.passed, 0);
+  const proposedTests = accepted.reduce((sum, [, pkg]) => sum + num(pkg.new_tests.passed), 0);
   const lastAttempt = metrics?.attempts?.[metrics.attempts.length - 1];
   const agentFailed = !!metrics && metrics.status !== 'ok' && packages.length === 0;
   let headline: string;
@@ -110,7 +116,7 @@ export function renderReport(input: ReportInput): string {
   else if (agentFailed) headline = 'agent run failed';
   else if (!verdict.guard.ok) headline = 'patch rejected by policy';
   else if (packages.length === 0) headline = result?.decision === 'no_change_needed' ? 'no test changes needed' : 'no test changes proposed';
-  else if (accepted.length === packages.length) headline = `${verdict.final_patch_files.length} verified test file(s) proposed`;
+  else if (accepted.length === packages.length) headline = `${num(verdict.final_patch_files.length)} verified test file(s) proposed`;
   else if (accepted.length > 0) headline = 'partially verified';
   else headline = 'proposed tests failed verification';
   lines.push(`## 🧪 Unit-test agent: ${headline}${head}`, '');
@@ -148,19 +154,19 @@ export function renderReport(input: ReportInput): string {
   if (verdict) {
     lines.push('### Verification', '', 'Re-run independently on a clean machine without secrets. Only packages that pass every gate are proposed.', '');
     if (!verdict.guard.ok) {
-      lines.push('**Rejected by the patch guard:**', ...verdict.guard.violations.map((violation) => `- ${code(violation.path)}: ${violation.rule} (${violation.detail})`), '');
+      lines.push('**Rejected by the patch guard:**', ...verdict.guard.violations.map((violation) => `- ${code(violation.path)}: ${plainCapped(violation.rule, 60)} (${plainCapped(violation.detail, 300)})`), '');
     }
     if (packages.length > 0) {
       lines.push('| Package | Verdict | Tests in changed files | Full suite | Stability | Type check | Line coverage |', '|---|---|---|---|---|---|---|');
       for (const [name, pkg] of packages) {
         lines.push(
-          `| ${name} | ${pkg.status === 'accepted' ? '✅ accepted' : '❌ rejected'} | ${pkg.new_tests.passed} passed, ${pkg.new_tests.failed} failed | ${pkg.patched ? `${pkg.patched.passed} passed, ${pkg.patched.failed} failed` : 'n/a'} | ${pkg.stability ? `${pkg.stability.runs} shuffled runs${pkg.stability.failures.length ? `, ${pkg.stability.failures.length} failure(s)` : ', stable'}` : 'n/a'} | ${pkg.typecheck ? (pkg.typecheck.patched ? 'passes' : 'fails') : 'n/a'} | ${pkg.coverage ? `${pkg.coverage.lines_before ?? 'n/a'}% → ${pkg.coverage.lines_after ?? 'n/a'}%` : 'n/a'} |`,
+          `| ${plainCapped(name, 30)} | ${pkg.status === 'accepted' ? '✅ accepted' : '❌ rejected'} | ${num(pkg.new_tests.passed)} passed, ${num(pkg.new_tests.failed)} failed | ${pkg.patched ? `${num(pkg.patched.passed)} passed, ${num(pkg.patched.failed)} failed` : 'n/a'} | ${pkg.stability ? `${num(pkg.stability.runs)} shuffled runs${pkg.stability.failures.length ? `, ${num(pkg.stability.failures.length)} failure(s)` : ', stable'}` : 'n/a'} | ${pkg.typecheck ? (pkg.typecheck.patched ? 'passes' : 'fails') : 'n/a'} | ${pkg.coverage ? `${percent(pkg.coverage.lines_before)} → ${percent(pkg.coverage.lines_after)}` : 'n/a'} |`,
         );
       }
-      for (const [name, pkg] of packages) if (pkg.reasons.length > 0) lines.push(`- **${name}:** ${pkg.reasons.map((reason) => plainCapped(reason, 300)).join('; ')}`);
+      for (const [name, pkg] of packages) if (pkg.reasons.length > 0) lines.push(`- **${plainCapped(name, 30)}:** ${pkg.reasons.map((reason) => plainCapped(reason, 300)).join('; ')}`);
       lines.push('');
     }
-    if (verdict.guard.notices.length > 0) lines.push(...verdict.guard.notices.map((notice) => `- ⚠️ ${code(notice.path)}: ${notice.detail}`), '');
+    if (verdict.guard.notices.length > 0) lines.push(...verdict.guard.notices.map((notice) => `- ⚠️ ${code(notice.path)}: ${plainCapped(notice.detail, 300)}`), '');
   }
 
   if (result && result.findings.length > 0) {
@@ -196,10 +202,10 @@ export function renderReport(input: ReportInput): string {
     const attempts = metrics.attempts ?? [];
     const last = attempts[attempts.length - 1];
     const route = plan.routing ? `tier ${plan.routing.tier} (${plainCapped(plan.routing.reason, 160)})` : '';
-    const models = attempts.map((attempt) => `${attempt.model} ${attempt.effort}`).join(' → ');
+    const models = attempts.map((attempt) => `${plainCapped(attempt.model, 40)} ${plainCapped(attempt.effort, 10)}`).join(' → ');
     lines.push(
       '<sub>',
-      `${route} · ${models || 'no model call'} · ${metrics.total_turns ?? 0} turns · ${money(metrics.total_cost_usd)} · ${duration(metrics.total_duration_ms)}${attempts.length > 1 ? ` · ${attempts.length} attempts (escalated: ${plainCapped(attempts[0].escalation_reason ?? '', 120)})` : ''}${last && last.status !== 'ok' ? ` · last attempt: ${last.status}` : ''}${result?.skills_used.length ? ` · skills: ${result.skills_used.map((skill) => plainCapped(skill, 60)).join(', ')}` : ''}`,
+      `${route} · ${models || 'no model call'} · ${num(metrics.total_turns)} turns · ${money(metrics.total_cost_usd)} · ${duration(metrics.total_duration_ms)}${attempts.length > 1 ? ` · ${attempts.length} attempts (escalated: ${plainCapped(attempts[0].escalation_reason ?? '', 120)})` : ''}${last && last.status !== 'ok' ? ` · last attempt: ${last.status}` : ''}${result?.skills_used.length ? ` · skills: ${result.skills_used.map((skill) => plainCapped(skill, 60)).join(', ')}` : ''}`,
       '</sub>',
     );
   }
