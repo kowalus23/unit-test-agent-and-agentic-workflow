@@ -1,0 +1,159 @@
+{
+  "version": 1,
+  "mode": "sweep",
+  "base_sha": null,
+  "head_sha": "8bba64939d3797907ba077944c2571778b5d293a",
+  "run_agent": true,
+  "skip_reason": null,
+  "agent_commit": false,
+  "targets": [
+    {
+      "package": "frontend",
+      "source": "frontend/src/features/todos/api/todos.ts",
+      "status": "existing",
+      "kind": "module",
+      "changed_lines": "all",
+      "changed_line_count": 35,
+      "owner_test": "frontend/src/features/todos/api/todos.test.ts",
+      "owner_test_exists": true,
+      "related_tests": []
+    },
+    {
+      "package": "frontend",
+      "source": "frontend/src/features/todos/hooks/useCreateTodoMutation.ts",
+      "status": "existing",
+      "kind": "hook",
+      "changed_lines": "all",
+      "changed_line_count": 21,
+      "owner_test": "frontend/src/features/todos/hooks/useCreateTodoMutation.test.ts",
+      "owner_test_exists": false,
+      "related_tests": [
+        "frontend/src/features/todos/components/TodoEditor.test.tsx"
+      ]
+    },
+    {
+      "package": "frontend",
+      "source": "frontend/src/features/todos/hooks/useDeleteTodoMutation.ts",
+      "status": "existing",
+      "kind": "hook",
+      "changed_lines": "all",
+      "changed_line_count": 19,
+      "owner_test": "frontend/src/features/todos/hooks/useDeleteTodoMutation.test.ts",
+      "owner_test_exists": false,
+      "related_tests": [
+        "frontend/src/features/todos/components/DeleteTodoDialog.test.tsx"
+      ]
+    },
+    {
+      "package": "frontend",
+      "source": "frontend/src/features/todos/hooks/useTodoFilters.ts",
+      "status": "existing",
+      "kind": "hook",
+      "changed_lines": "all",
+      "changed_line_count": 19,
+      "owner_test": "frontend/src/features/todos/hooks/useTodoFilters.test.ts",
+      "owner_test_exists": false,
+      "related_tests": [
+        "frontend/src/features/todos/TodosPage.test.tsx"
+      ]
+    },
+    {
+      "package": "frontend",
+      "source": "frontend/src/features/todos/hooks/useTodosBusy.ts",
+      "status": "existing",
+      "kind": "hook",
+      "changed_lines": "all",
+      "changed_line_count": 7,
+      "owner_test": "frontend/src/features/todos/hooks/useTodosBusy.test.ts",
+      "owner_test_exists": false,
+      "related_tests": [
+        "frontend/src/features/todos/TodosPage.test.tsx"
+      ]
+    },
+    {
+      "package": "frontend",
+      "source": "frontend/src/features/todos/hooks/useTodosQuery.ts",
+      "status": "existing",
+      "kind": "hook",
+      "changed_lines": "all",
+      "changed_line_count": 11,
+      "owner_test": "frontend/src/features/todos/hooks/useTodosQuery.test.ts",
+      "owner_test_exists": false,
+      "related_tests": [
+        "frontend/src/features/todos/TodosPage.test.tsx"
+      ]
+    },
+    {
+      "package": "frontend",
+      "source": "frontend/src/features/todos/hooks/useUpdateTodoMutation.ts",
+      "status": "existing",
+      "kind": "hook",
+      "changed_lines": "all",
+      "changed_line_count": 20,
+      "owner_test": "frontend/src/features/todos/hooks/useUpdateTodoMutation.test.ts",
+      "owner_test_exists": false,
+      "related_tests": [
+        "frontend/src/features/todos/TodosPage.test.tsx",
+        "frontend/src/features/todos/components/TodoEditor.test.tsx"
+      ]
+    },
+    {
+      "package": "frontend",
+      "source": "frontend/src/features/todos/utils/todos.ts",
+      "status": "existing",
+      "kind": "module",
+      "changed_lines": "all",
+      "changed_line_count": 72,
+      "owner_test": "frontend/src/features/todos/utils/todos.test.ts",
+      "owner_test_exists": true,
+      "related_tests": []
+    },
+    {
+      "package": "frontend",
+      "source": "frontend/src/hooks/useNotice.ts",
+      "status": "existing",
+      "kind": "hook",
+      "changed_lines": "all",
+      "changed_line_count": 13,
+      "owner_test": "frontend/src/hooks/useNotice.test.ts",
+      "owner_test_exists": true,
+      "related_tests": [
+        "frontend/src/features/todos/TodosPage.test.tsx"
+      ]
+    },
+    {
+      "package": "frontend",
+      "source": "frontend/src/lib/http.ts",
+      "status": "existing",
+      "kind": "module",
+      "changed_lines": "all",
+      "changed_line_count": 26,
+      "owner_test": "frontend/src/lib/http.test.ts",
+      "owner_test_exists": false,
+      "related_tests": [
+        "frontend/src/features/todos/api/todos.test.ts"
+      ]
+    }
+  ],
+  "dropped_targets": [],
+  "ignored": [],
+  "deleted_sources": [],
+  "author_test_changes": [],
+  "flags": {
+    "dependencies_changed": false,
+    "agent_config_changed": false,
+    "test_config_changed": false,
+    "database_changed": false,
+    "injection_suspected": false,
+    "injection_signals": []
+  },
+  "routing": {
+    "tier": "sweep",
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "max_turns": 120,
+    "max_budget_usd": 8,
+    "escalation_tier": null,
+    "reason": "sweep mode"
+  }
+}
