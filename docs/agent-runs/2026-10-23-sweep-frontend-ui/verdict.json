@@ -1,0 +1,676 @@
+{
+  "version": 1,
+  "head_sha": "cba4619b8e4aac4f0119344f36417591adab217a",
+  "guard": {
+    "ok": true,
+    "violations": [],
+    "notices": [
+      {
+        "path": "frontend/src/features/todos/TodosPage.test.tsx",
+        "kind": "modified_existing_test",
+        "detail": "6 existing line(s) changed (setup, imports or fixtures)"
+      },
+      {
+        "path": "frontend/src/features/todos/components/DeleteTodoDialog.test.tsx",
+        "kind": "modified_existing_test",
+        "detail": "2 existing line(s) changed (setup, imports or fixtures)"
+      },
+      {
+        "path": "frontend/src/features/todos/components/TodoEditor.test.tsx",
+        "kind": "modified_existing_test",
+        "detail": "2 existing line(s) changed (setup, imports or fixtures)"
+      },
+      {
+        "path": "frontend/src/features/todos/components/TodoItem.test.tsx",
+        "kind": "modified_existing_test",
+        "detail": "1 existing line(s) changed (setup, imports or fixtures)"
+      },
+      {
+        "path": "frontend/src/features/todos/components/TodoList.test.tsx",
+        "kind": "modified_existing_test",
+        "detail": "4 existing line(s) changed (setup, imports or fixtures)"
+      }
+    ],
+    "files": [
+      {
+        "path": "frontend/src/app/AppProviders.test.tsx",
+        "package": "frontend",
+        "status": "added",
+        "added": 35,
+        "removed": 0
+      },
+      {
+        "path": "frontend/src/features/todos/TodosPage.test.tsx",
+        "package": "frontend",
+        "status": "modified",
+        "added": 263,
+        "removed": 6
+      },
+      {
+        "path": "frontend/src/features/todos/components/DeleteTodoDialog.test.tsx",
+        "package": "frontend",
+        "status": "modified",
+        "added": 87,
+        "removed": 2
+      },
+      {
+        "path": "frontend/src/features/todos/components/TodoEditor.test.tsx",
+        "package": "frontend",
+        "status": "modified",
+        "added": 147,
+        "removed": 2
+      },
+      {
+        "path": "frontend/src/features/todos/components/TodoEmptyState.test.tsx",
+        "package": "frontend",
+        "status": "added",
+        "added": 43,
+        "removed": 0
+      },
+      {
+        "path": "frontend/src/features/todos/components/TodoForm.test.tsx",
+        "package": "frontend",
+        "status": "modified",
+        "added": 161,
+        "removed": 0
+      },
+      {
+        "path": "frontend/src/features/todos/components/TodoItem.test.tsx",
+        "package": "frontend",
+        "status": "modified",
+        "added": 127,
+        "removed": 1
+      },
+      {
+        "path": "frontend/src/features/todos/components/TodoList.test.tsx",
+        "package": "frontend",
+        "status": "modified",
+        "added": 90,
+        "removed": 4
+      }
+    ]
+  },
+  "packages": {
+    "backend": {
+      "status": "not_touched",
+      "reasons": [],
+      "test_files": [],
+      "typecheck": null,
+      "baseline": null,
+      "patched": null,
+      "new_tests": {
+        "passed": 0,
+        "failed": 0
+      },
+      "stability": null,
+      "coverage": null
+    },
+    "frontend": {
+      "status": "accepted",
+      "reasons": [],
+      "test_files": [
+        "frontend/src/app/AppProviders.test.tsx",
+        "frontend/src/features/todos/TodosPage.test.tsx",
+        "frontend/src/features/todos/components/DeleteTodoDialog.test.tsx",
+        "frontend/src/features/todos/components/TodoEditor.test.tsx",
+        "frontend/src/features/todos/components/TodoEmptyState.test.tsx",
+        "frontend/src/features/todos/components/TodoForm.test.tsx",
+        "frontend/src/features/todos/components/TodoItem.test.tsx",
+        "frontend/src/features/todos/components/TodoList.test.tsx"
+      ],
+      "typecheck": {
+        "baseline": true,
+        "patched": true
+      },
+      "baseline": {
+        "ran": true,
+        "passed": 18,
+        "failed": 0,
+        "failedTests": [],
+        "totals": {
+          "lines": 47.68,
+          "branches": 43.79
+        }
+      },
+      "patched": {
+        "ran": true,
+        "passed": 75,
+        "failed": 0,
+        "failedTests": [],
+        "totals": {
+          "lines": 70.86,
+          "branches": 78.83
+        }
+      },
+      "new_tests": {
+        "passed": 64,
+        "failed": 0
+      },
+      "stability": {
+        "runs": 3,
+        "failures": []
+      },
+      "coverage": {
+        "lines_before": 47.68,
+        "lines_after": 70.86,
+        "branches_before": 43.79,
+        "branches_after": 78.83
+      }
+    }
+  },
+  "targets": [
+    {
+      "source": "frontend/src/app/AppProviders.tsx",
+      "package": "frontend",
+      "before": {
+        "statements": {
+          "covered": 0,
+          "total": 1,
+          "pct": 0
+        },
+        "branches": {
+          "covered": 0,
+          "total": 1,
+          "pct": 0
+        },
+        "functions": {
+          "covered": 0,
+          "total": 1,
+          "pct": 0
+        },
+        "lines": {
+          "covered": 0,
+          "total": 1,
+          "pct": 0
+        },
+        "uncoveredLines": [
+          14
+        ],
+        "partialBranchLines": [
+          9
+        ]
+      },
+      "after": {
+        "statements": {
+          "covered": 1,
+          "total": 1,
+          "pct": 100
+        },
+        "branches": {
+          "covered": 1,
+          "total": 1,
+          "pct": 100
+        },
+        "functions": {
+          "covered": 1,
+          "total": 1,
+          "pct": 100
+        },
+        "lines": {
+          "covered": 1,
+          "total": 1,
+          "pct": 100
+        },
+        "uncoveredLines": [],
+        "partialBranchLines": []
+      }
+    },
+    {
+      "source": "frontend/src/features/todos/components/DeleteTodoDialog.tsx",
+      "package": "frontend",
+      "before": {
+        "statements": {
+          "covered": 3,
+          "total": 9,
+          "pct": 33.33
+        },
+        "branches": {
+          "covered": 5,
+          "total": 8,
+          "pct": 62.5
+        },
+        "functions": {
+          "covered": 1,
+          "total": 3,
+          "pct": 33.33
+        },
+        "lines": {
+          "covered": 3,
+          "total": 8,
+          "pct": 37.5
+        },
+        "uncoveredLines": [
+          19,
+          20,
+          21,
+          22,
+          40
+        ],
+        "partialBranchLines": [
+          19,
+          42
+        ]
+      },
+      "after": {
+        "statements": {
+          "covered": 8,
+          "total": 9,
+          "pct": 88.89
+        },
+        "branches": {
+          "covered": 7,
+          "total": 8,
+          "pct": 87.5
+        },
+        "functions": {
+          "covered": 3,
+          "total": 3,
+          "pct": 100
+        },
+        "lines": {
+          "covered": 8,
+          "total": 8,
+          "pct": 100
+        },
+        "uncoveredLines": [],
+        "partialBranchLines": [
+          19
+        ]
+      }
+    },
+    {
+      "source": "frontend/src/features/todos/components/TodoEditor.tsx",
+      "package": "frontend",
+      "before": {
+        "statements": {
+          "covered": 10,
+          "total": 12,
+          "pct": 83.33
+        },
+        "branches": {
+          "covered": 10,
+          "total": 16,
+          "pct": 62.5
+        },
+        "functions": {
+          "covered": 2,
+          "total": 2,
+          "pct": 100
+        },
+        "lines": {
+          "covered": 9,
+          "total": 10,
+          "pct": 90
+        },
+        "uncoveredLines": [
+          27
+        ],
+        "partialBranchLines": [
+          20,
+          24,
+          27,
+          28,
+          37,
+          42
+        ]
+      },
+      "after": {
+        "statements": {
+          "covered": 12,
+          "total": 12,
+          "pct": 100
+        },
+        "branches": {
+          "covered": 16,
+          "total": 16,
+          "pct": 100
+        },
+        "functions": {
+          "covered": 2,
+          "total": 2,
+          "pct": 100
+        },
+        "lines": {
+          "covered": 10,
+          "total": 10,
+          "pct": 100
+        },
+        "uncoveredLines": [],
+        "partialBranchLines": []
+      }
+    },
+    {
+      "source": "frontend/src/features/todos/components/TodoEmptyState.tsx",
+      "package": "frontend",
+      "before": {
+        "statements": {
+          "covered": 0,
+          "total": 1,
+          "pct": 0
+        },
+        "branches": {
+          "covered": 0,
+          "total": 6,
+          "pct": 0
+        },
+        "functions": {
+          "covered": 0,
+          "total": 1,
+          "pct": 0
+        },
+        "lines": {
+          "covered": 0,
+          "total": 1,
+          "pct": 0
+        },
+        "uncoveredLines": [
+          13
+        ],
+        "partialBranchLines": [
+          16,
+          20,
+          21,
+          23,
+          24
+        ]
+      },
+      "after": {
+        "statements": {
+          "covered": 1,
+          "total": 1,
+          "pct": 100
+        },
+        "branches": {
+          "covered": 6,
+          "total": 6,
+          "pct": 100
+        },
+        "functions": {
+          "covered": 1,
+          "total": 1,
+          "pct": 100
+        },
+        "lines": {
+          "covered": 1,
+          "total": 1,
+          "pct": 100
+        },
+        "uncoveredLines": [],
+        "partialBranchLines": []
+      }
+    },
+    {
+      "source": "frontend/src/features/todos/components/TodoForm.tsx",
+      "package": "frontend",
+      "before": {
+        "statements": {
+          "covered": 15,
+          "total": 17,
+          "pct": 88.24
+        },
+        "branches": {
+          "covered": 7,
+          "total": 11,
+          "pct": 63.64
+        },
+        "functions": {
+          "covered": 7,
+          "total": 9,
+          "pct": 77.78
+        },
+        "lines": {
+          "covered": 14,
+          "total": 16,
+          "pct": 87.5
+        },
+        "uncoveredLines": [
+          67,
+          91
+        ],
+        "partialBranchLines": [
+          91,
+          97,
+          108
+        ]
+      },
+      "after": {
+        "statements": {
+          "covered": 17,
+          "total": 17,
+          "pct": 100
+        },
+        "branches": {
+          "covered": 11,
+          "total": 11,
+          "pct": 100
+        },
+        "functions": {
+          "covered": 9,
+          "total": 9,
+          "pct": 100
+        },
+        "lines": {
+          "covered": 16,
+          "total": 16,
+          "pct": 100
+        },
+        "uncoveredLines": [],
+        "partialBranchLines": []
+      }
+    },
+    {
+      "source": "frontend/src/features/todos/components/TodoItem.tsx",
+      "package": "frontend",
+      "before": {
+        "statements": {
+          "covered": 1,
+          "total": 1,
+          "pct": 100
+        },
+        "branches": {
+          "covered": 5,
+          "total": 14,
+          "pct": 35.71
+        },
+        "functions": {
+          "covered": 1,
+          "total": 1,
+          "pct": 100
+        },
+        "lines": {
+          "covered": 1,
+          "total": 1,
+          "pct": 100
+        },
+        "uncoveredLines": [],
+        "partialBranchLines": [
+          33,
+          41,
+          42,
+          48,
+          51,
+          52,
+          64
+        ]
+      },
+      "after": {
+        "statements": {
+          "covered": 1,
+          "total": 1,
+          "pct": 100
+        },
+        "branches": {
+          "covered": 14,
+          "total": 14,
+          "pct": 100
+        },
+        "functions": {
+          "covered": 1,
+          "total": 1,
+          "pct": 100
+        },
+        "lines": {
+          "covered": 1,
+          "total": 1,
+          "pct": 100
+        },
+        "uncoveredLines": [],
+        "partialBranchLines": []
+      }
+    },
+    {
+      "source": "frontend/src/features/todos/components/TodoList.tsx",
+      "package": "frontend",
+      "before": {
+        "statements": {
+          "covered": 1,
+          "total": 5,
+          "pct": 20
+        },
+        "branches": {
+          "covered": 5,
+          "total": 8,
+          "pct": 62.5
+        },
+        "functions": {
+          "covered": 1,
+          "total": 5,
+          "pct": 20
+        },
+        "lines": {
+          "covered": 1,
+          "total": 5,
+          "pct": 20
+        },
+        "uncoveredLines": [
+          43,
+          47,
+          48,
+          49
+        ],
+        "partialBranchLines": [
+          35,
+          36,
+          41
+        ]
+      },
+      "after": {
+        "statements": {
+          "covered": 5,
+          "total": 5,
+          "pct": 100
+        },
+        "branches": {
+          "covered": 8,
+          "total": 8,
+          "pct": 100
+        },
+        "functions": {
+          "covered": 5,
+          "total": 5,
+          "pct": 100
+        },
+        "lines": {
+          "covered": 5,
+          "total": 5,
+          "pct": 100
+        },
+        "uncoveredLines": [],
+        "partialBranchLines": []
+      }
+    },
+    {
+      "source": "frontend/src/features/todos/TodosPage.tsx",
+      "package": "frontend",
+      "before": {
+        "statements": {
+          "covered": 13,
+          "total": 27,
+          "pct": 48.15
+        },
+        "branches": {
+          "covered": 11,
+          "total": 18,
+          "pct": 61.11
+        },
+        "functions": {
+          "covered": 3,
+          "total": 11,
+          "pct": 27.27
+        },
+        "lines": {
+          "covered": 13,
+          "total": 26,
+          "pct": 50
+        },
+        "uncoveredLines": [
+          28,
+          29,
+          30,
+          34,
+          53,
+          81,
+          82,
+          92,
+          94,
+          95,
+          103,
+          105,
+          106
+        ],
+        "partialBranchLines": [
+          18,
+          28,
+          36,
+          37,
+          89,
+          100
+        ]
+      },
+      "after": {
+        "statements": {
+          "covered": 27,
+          "total": 27,
+          "pct": 100
+        },
+        "branches": {
+          "covered": 18,
+          "total": 18,
+          "pct": 100
+        },
+        "functions": {
+          "covered": 11,
+          "total": 11,
+          "pct": 100
+        },
+        "lines": {
+          "covered": 26,
+          "total": 26,
+          "pct": 100
+        },
+        "uncoveredLines": [],
+        "partialBranchLines": []
+      }
+    }
+  ],
+  "final_patch_files": [
+    "frontend/src/app/AppProviders.test.tsx",
+    "frontend/src/features/todos/TodosPage.test.tsx",
+    "frontend/src/features/todos/components/DeleteTodoDialog.test.tsx",
+    "frontend/src/features/todos/components/TodoEditor.test.tsx",
+    "frontend/src/features/todos/components/TodoEmptyState.test.tsx",
+    "frontend/src/features/todos/components/TodoForm.test.tsx",
+    "frontend/src/features/todos/components/TodoItem.test.tsx",
+    "frontend/src/features/todos/components/TodoList.test.tsx"
+  ],
+  "formatted_files": [
+    "frontend/src/app/AppProviders.test.tsx",
+    "frontend/src/features/todos/TodosPage.test.tsx",
+    "frontend/src/features/todos/components/DeleteTodoDialog.test.tsx",
+    "frontend/src/features/todos/components/TodoEditor.test.tsx",
+    "frontend/src/features/todos/components/TodoEmptyState.test.tsx",
+    "frontend/src/features/todos/components/TodoForm.test.tsx",
+    "frontend/src/features/todos/components/TodoItem.test.tsx",
+    "frontend/src/features/todos/components/TodoList.test.tsx"
+  ]
+}

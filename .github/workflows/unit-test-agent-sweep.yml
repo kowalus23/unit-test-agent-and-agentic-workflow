@@ -1,0 +1,216 @@
+# Raises unit-test coverage for chosen existing files with the same agent,
+# skills and verification as the pull-request workflow.
+#
+# Started by a maintainer (workflow_dispatch needs write access), so the
+# dispatched ref is trusted. The verified tests are committed to a new branch
+# `unit-test-agent/sweep-<run id>`; a human opens the pull request from it
+# (Actions may not create pull requests in this repository).
+
+name: Unit-test agent (sweep)
+
+on:
+  workflow_dispatch:
+    inputs:
+      targets:
+        description: Comma-separated source files, e.g. backend/src/core/config.ts,backend/src/main.ts
+        required: true
+        type: string
+
+permissions: {}
+
+concurrency:
+  group: unit-test-agent-sweep-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  TZ: UTC
+  NPM_CONFIG_AUDIT: "false"
+  NPM_CONFIG_FUND: "false"
+  CHECKPOINT_DISABLE: "1"
+  PRISMA_HIDE_UPDATE_MESSAGE: "1"
+
+jobs:
+  plan:
+    name: Plan
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    permissions:
+      contents: read
+    outputs:
+      run_agent: ${{ steps.plan.outputs.run_agent }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          path: repo
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: repo/.nvmrc
+          package-manager-cache: false
+      - id: plan
+        name: Build the sweep plan
+        env:
+          TARGETS: ${{ inputs.targets }}
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/plan"
+          node repo/scripts/agent/plan.ts --repo repo --mode sweep --targets "$TARGETS" --out "$RUNNER_TEMP/plan/plan.json"
+          echo "run_agent=$(jq -r .run_agent "$RUNNER_TEMP/plan/plan.json")" >> "$GITHUB_OUTPUT"
+          jq '{run_agent, skip_reason, routing, targets: [.targets[] | {source, owner_test, owner_test_exists}], ignored}' "$RUNNER_TEMP/plan/plan.json"
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: unit-test-agent-plan
+          path: ${{ runner.temp }}/plan/plan.json
+          retention-days: 7
+
+  agent:
+    name: Agent
+    needs: plan
+    if: needs.plan.outputs.run_agent == 'true'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    environment: unit-test-agent
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          path: repo
+          persist-credentials: false
+      - id: runtime
+        name: Prepare the agent runtime (pinned CLI, sandbox, no sudo)
+        # The dispatched ref is the trusted code here; it is also the code under test.
+        uses: ./repo/.github/actions/agent-runtime # zizmor: ignore[self-repository]
+        with:
+          trusted-path: repo
+      - name: Install dependencies (lifecycle scripts disabled)
+        run: |
+          set -euo pipefail
+          (cd repo/backend && npm ci --ignore-scripts && npm run db:generate)
+          (cd repo/frontend && npm ci --ignore-scripts)
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: unit-test-agent-plan
+          path: ${{ runner.temp }}/plan
+      - name: Run the unit-test agent
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          CLAUDE_BIN: ${{ steps.runtime.outputs.claude }}
+        run: |
+          node repo/scripts/agent/run-agent.ts --repo repo --plan "$RUNNER_TEMP/plan/plan.json" --out "$RUNNER_TEMP/agent" --claude "$CLAUDE_BIN"
+          jq . "$RUNNER_TEMP/agent/metrics.json"
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: unit-test-agent-output
+          path: |
+            ${{ runner.temp }}/agent/agent.patch
+            ${{ runner.temp }}/agent/agent-result.json
+            ${{ runner.temp }}/agent/guard.json
+            ${{ runner.temp }}/agent/metrics.json
+            ${{ runner.temp }}/agent/attempt-*-result.json
+          retention-days: 7
+          if-no-files-found: error
+
+  verify:
+    name: Verify
+    needs: [plan, agent]
+    if: needs.agent.result == 'success'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          path: repo
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: repo/.nvmrc
+          package-manager-cache: false
+      - name: Install dependencies (lifecycle scripts disabled)
+        run: |
+          set -euo pipefail
+          (cd repo/backend && npm ci --ignore-scripts && npm run db:generate)
+          (cd repo/frontend && npm ci --ignore-scripts)
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          pattern: unit-test-agent-{plan,output}
+          path: ${{ runner.temp }}/in
+          merge-multiple: true
+      - name: Verify the agent patch
+        run: |
+          # verify.ts applies the patch, so it runs from a copy of the tooling outside the checkout.
+          cp -R repo/scripts "$RUNNER_TEMP/scripts" && cp -R repo/.claude "$RUNNER_TEMP/.claude"
+          node "$RUNNER_TEMP/scripts/agent/verify.ts" --repo repo --plan "$RUNNER_TEMP/in/plan.json" --patch "$RUNNER_TEMP/in/agent.patch" --out "$RUNNER_TEMP/verify"
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: unit-test-agent-verdict
+          path: ${{ runner.temp }}/verify/verdict.json
+          retention-days: 7
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: unit-test-agent-final-patch
+          path: ${{ runner.temp }}/verify/final.patch
+          retention-days: 7
+
+  publish:
+    name: Commit to a sweep branch
+    needs: [plan, agent, verify]
+    if: ${{ !cancelled() && needs.plan.outputs.run_agent == 'true' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    permissions:
+      contents: write # create the sweep branch and one commit with the verified test files
+    env:
+      GH_TOKEN: ${{ github.token }}
+      REPO: ${{ github.repository }}
+      SOURCE_SHA: ${{ github.sha }}
+      SOURCE_REF: ${{ github.ref_name }}
+      RUN_ID: ${{ github.run_id }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          path: repo
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: repo/.nvmrc
+          package-manager-cache: false
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          pattern: unit-test-agent-*
+          path: ${{ runner.temp }}/report
+          merge-multiple: true
+      - name: Render the report
+        env:
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          cp -R repo/scripts "$RUNNER_TEMP/scripts" && cp -R repo/.claude "$RUNNER_TEMP/.claude"
+          node "$RUNNER_TEMP/scripts/agent/render-report.ts" --dir "$RUNNER_TEMP/report" --run-url "$RUN_URL" --out "$RUNNER_TEMP/report.md"
+          cat "$RUNNER_TEMP/report.md" >> "$GITHUB_STEP_SUMMARY"
+      - name: Commit the verified tests to a new branch
+        run: |
+          set -euo pipefail
+          if [[ ! -s "$RUNNER_TEMP/report/final.patch" ]]; then
+            echo "No verified tests to commit." >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          branch="unit-test-agent/sweep-$RUN_ID"
+          git -C repo apply "$RUNNER_TEMP/report/final.patch"
+          node "$RUNNER_TEMP/scripts/agent/apply-commit.ts" --repo repo --patch "$RUNNER_TEMP/report/final.patch" \
+            --verdict "$RUNNER_TEMP/report/verdict.json" --repository "$REPO" --branch "$branch" \
+            --expected-head "$SOURCE_SHA" --run-id "$RUN_ID" --out "$RUNNER_TEMP/commit-input.json"
+          gh api -X POST "repos/$REPO/git/refs" -f ref="refs/heads/$branch" -f sha="$SOURCE_SHA" > /dev/null
+          # shellcheck disable=SC2016 # $input is a GraphQL variable, not a shell expansion
+          query='mutation($input: CreateCommitOnBranchInput!) { createCommitOnBranch(input: $input) { commit { oid } } }'
+          jq --arg query "$query" '{query: $query, variables: .}' "$RUNNER_TEMP/commit-input.json" > "$RUNNER_TEMP/request.json"
+          oid="$(gh api graphql --input "$RUNNER_TEMP/request.json" --jq '.data.createCommitOnBranch.commit.oid')"
+          {
+            echo ""
+            echo "### Verified tests committed"
+            echo ""
+            echo "Commit $oid on \`$branch\`. Open a pull request into \`$SOURCE_REF\`:"
+            echo "https://github.com/$REPO/compare/$SOURCE_REF...$branch?expand=1"
+          } >> "$GITHUB_STEP_SUMMARY"

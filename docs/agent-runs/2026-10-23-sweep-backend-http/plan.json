@@ -1,0 +1,54 @@
+{
+  "version": 1,
+  "mode": "sweep",
+  "base_sha": null,
+  "head_sha": "8bba64939d3797907ba077944c2571778b5d293a",
+  "run_agent": true,
+  "skip_reason": null,
+  "agent_commit": false,
+  "targets": [
+    {
+      "package": "backend",
+      "source": "backend/src/factory.ts",
+      "status": "existing",
+      "kind": "module",
+      "changed_lines": "all",
+      "changed_line_count": 29,
+      "owner_test": "backend/tests/factory.test.ts",
+      "owner_test_exists": false,
+      "related_tests": []
+    },
+    {
+      "package": "backend",
+      "source": "backend/src/features/todos/router.ts",
+      "status": "existing",
+      "kind": "module",
+      "changed_lines": "all",
+      "changed_line_count": 37,
+      "owner_test": "backend/tests/router.test.ts",
+      "owner_test_exists": true,
+      "related_tests": []
+    }
+  ],
+  "dropped_targets": [],
+  "ignored": [],
+  "deleted_sources": [],
+  "author_test_changes": [],
+  "flags": {
+    "dependencies_changed": false,
+    "agent_config_changed": false,
+    "test_config_changed": false,
+    "database_changed": false,
+    "injection_suspected": false,
+    "injection_signals": []
+  },
+  "routing": {
+    "tier": "sweep",
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "max_turns": 120,
+    "max_budget_usd": 8,
+    "escalation_tier": null,
+    "reason": "sweep mode"
+  }
+}

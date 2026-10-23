@@ -1,0 +1,37 @@
+{
+  "decision": "tests_updated",
+  "summary": "Analyzed the changed lines of frontend/src/lib/http.ts (Headers normalisation, default JSON Content-Type, non-JSON 200 body and abort-while-reading handling) against its owner test. Two existing assertions failed in the baseline because the request now sends a Headers instance instead of a plain object; the wire headers are equivalent, so those two assertions were adjusted to compare normalised headers and the file gained cases for the uncovered branches. The http owner test (14 passed) reaches 100% line and branch coverage of http.ts; the full frontend suite (162 passed) and the typecheck pass.",
+  "targets": [
+    {
+      "source_file": "frontend/src/lib/http.ts",
+      "decision": "updated",
+      "test_files": [
+        "frontend/src/lib/http.test.ts"
+      ],
+      "reason": "Owner test existed; two baseline assertions checked the outgoing headers as a plain object, which the intentional Headers change altered (changed_expectations). Added cases for lines 2-5, 8 and 25-31 that no case covered. Related test frontend/src/features/todos/api/todos.test.ts mocks lib/http and passes (6 passed).",
+      "behaviours": [
+        "sends JSON requests under /api with a JSON Content-Type by default",
+        "caller headers given as a plain object override the defaults",
+        "keeps the JSON Content-Type default when the caller sets other headers only",
+        "a Content-Type given through a Headers instance overrides the default",
+        "accepts caller headers given as name-value pairs",
+        "reports a 200 response with a non-JSON body as an unexpected response",
+        "rethrows the original error when the request was aborted while reading the body"
+      ],
+      "local_result": "passed"
+    }
+  ],
+  "findings": [
+    {
+      "kind": "changed_expectations",
+      "file": "frontend/src/lib/http.test.ts",
+      "line": 19,
+      "detail": "Assertions that the outgoing headers equal a plain object ({'Content-Type': 'application/json'} and caller plain-object headers) were changed to compare normalised Headers values, because lib/http.ts now builds a Headers instance (old: plain object in fetch init; new: Headers instance with the same header values)."
+    }
+  ],
+  "skills_used": [
+    "analyzing-test-impact",
+    "writing-frontend-unit-tests",
+    "running-unit-tests"
+  ]
+}

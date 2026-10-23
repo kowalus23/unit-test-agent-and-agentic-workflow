@@ -1,0 +1,24 @@
+{
+  "status": "ok",
+  "accepted_attempt": 1,
+  "total_cost_usd": 0.009,
+  "total_turns": 16,
+  "total_duration_ms": 40646,
+  "attempts": [
+    {
+      "tier": "S",
+      "model": "claude-haiku-5-5",
+      "effort": "medium",
+      "maxTurns": 30,
+      "maxBudgetUsd": 0.75,
+      "status": "ok",
+      "subtype": "success",
+      "cost_usd": 0.008990900000000001,
+      "turns": 16,
+      "duration_ms": 40646,
+      "permission_denials": [],
+      "escalation_reason": null,
+      "result_source": "structured_output"
+    }
+  ]
+}

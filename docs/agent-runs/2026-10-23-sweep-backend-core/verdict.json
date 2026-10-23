@@ -1,0 +1,367 @@
+{
+  "version": 1,
+  "head_sha": "cba4619b8e4aac4f0119344f36417591adab217a",
+  "guard": {
+    "ok": true,
+    "violations": [],
+    "notices": [],
+    "files": [
+      {
+        "path": "backend/tests/config.test.ts",
+        "package": "backend",
+        "status": "added",
+        "added": 39,
+        "removed": 0
+      },
+      {
+        "path": "backend/tests/database.test.ts",
+        "package": "backend",
+        "status": "added",
+        "added": 22,
+        "removed": 0
+      },
+      {
+        "path": "backend/tests/lifespan.test.ts",
+        "package": "backend",
+        "status": "added",
+        "added": 104,
+        "removed": 0
+      },
+      {
+        "path": "backend/tests/main.test.ts",
+        "package": "backend",
+        "status": "added",
+        "added": 26,
+        "removed": 0
+      }
+    ]
+  },
+  "packages": {
+    "backend": {
+      "status": "accepted",
+      "reasons": [],
+      "test_files": [
+        "backend/tests/config.test.ts",
+        "backend/tests/database.test.ts",
+        "backend/tests/lifespan.test.ts",
+        "backend/tests/main.test.ts"
+      ],
+      "typecheck": {
+        "baseline": true,
+        "patched": true
+      },
+      "baseline": {
+        "ran": true,
+        "passed": 48,
+        "failed": 0,
+        "failedTests": [],
+        "totals": {
+          "lines": 33.02,
+          "branches": 33.33
+        }
+      },
+      "patched": {
+        "ran": true,
+        "passed": 70,
+        "failed": 0,
+        "failedTests": [],
+        "totals": {
+          "lines": 80.73,
+          "branches": 50
+        }
+      },
+      "new_tests": {
+        "passed": 22,
+        "failed": 0
+      },
+      "stability": {
+        "runs": 3,
+        "failures": []
+      },
+      "coverage": {
+        "lines_before": 33.02,
+        "lines_after": 80.73,
+        "branches_before": 33.33,
+        "branches_after": 50
+      }
+    },
+    "frontend": {
+      "status": "not_touched",
+      "reasons": [],
+      "test_files": [],
+      "typecheck": null,
+      "baseline": null,
+      "patched": null,
+      "new_tests": {
+        "passed": 0,
+        "failed": 0
+      },
+      "stability": null,
+      "coverage": null
+    }
+  },
+  "targets": [
+    {
+      "source": "backend/src/core/config.ts",
+      "package": "backend",
+      "before": {
+        "statements": {
+          "covered": 0,
+          "total": 15,
+          "pct": 0
+        },
+        "branches": {
+          "covered": 0,
+          "total": 6,
+          "pct": 0
+        },
+        "functions": {
+          "covered": 0,
+          "total": 1,
+          "pct": 0
+        },
+        "lines": {
+          "covered": 0,
+          "total": 13,
+          "pct": 0
+        },
+        "uncoveredLines": [
+          4,
+          7,
+          8,
+          9,
+          10,
+          11,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18,
+          19
+        ],
+        "partialBranchLines": [
+          7,
+          8,
+          11
+        ]
+      },
+      "after": {
+        "statements": {
+          "covered": 15,
+          "total": 15,
+          "pct": 100
+        },
+        "branches": {
+          "covered": 6,
+          "total": 6,
+          "pct": 100
+        },
+        "functions": {
+          "covered": 1,
+          "total": 1,
+          "pct": 100
+        },
+        "lines": {
+          "covered": 13,
+          "total": 13,
+          "pct": 100
+        },
+        "uncoveredLines": [],
+        "partialBranchLines": []
+      }
+    },
+    {
+      "source": "backend/src/core/database.ts",
+      "package": "backend",
+      "before": {
+        "statements": {
+          "covered": 2,
+          "total": 3,
+          "pct": 66.67
+        },
+        "branches": {
+          "covered": 0,
+          "total": 0,
+          "pct": 100
+        },
+        "functions": {
+          "covered": 1,
+          "total": 2,
+          "pct": 50
+        },
+        "lines": {
+          "covered": 2,
+          "total": 3,
+          "pct": 66.67
+        },
+        "uncoveredLines": [
+          12
+        ],
+        "partialBranchLines": []
+      },
+      "after": {
+        "statements": {
+          "covered": 3,
+          "total": 3,
+          "pct": 100
+        },
+        "branches": {
+          "covered": 0,
+          "total": 0,
+          "pct": 100
+        },
+        "functions": {
+          "covered": 2,
+          "total": 2,
+          "pct": 100
+        },
+        "lines": {
+          "covered": 3,
+          "total": 3,
+          "pct": 100
+        },
+        "uncoveredLines": [],
+        "partialBranchLines": []
+      }
+    },
+    {
+      "source": "backend/src/core/lifespan.ts",
+      "package": "backend",
+      "before": {
+        "statements": {
+          "covered": 0,
+          "total": 25,
+          "pct": 0
+        },
+        "branches": {
+          "covered": 0,
+          "total": 2,
+          "pct": 0
+        },
+        "functions": {
+          "covered": 0,
+          "total": 6,
+          "pct": 0
+        },
+        "lines": {
+          "covered": 0,
+          "total": 20,
+          "pct": 0
+        },
+        "uncoveredLines": [
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          17,
+          18,
+          19,
+          20,
+          21,
+          22,
+          23,
+          26,
+          27,
+          28,
+          30,
+          31
+        ],
+        "partialBranchLines": [
+          14
+        ]
+      },
+      "after": {
+        "statements": {
+          "covered": 25,
+          "total": 25,
+          "pct": 100
+        },
+        "branches": {
+          "covered": 2,
+          "total": 2,
+          "pct": 100
+        },
+        "functions": {
+          "covered": 6,
+          "total": 6,
+          "pct": 100
+        },
+        "lines": {
+          "covered": 20,
+          "total": 20,
+          "pct": 100
+        },
+        "uncoveredLines": [],
+        "partialBranchLines": []
+      }
+    },
+    {
+      "source": "backend/src/main.ts",
+      "package": "backend",
+      "before": {
+        "statements": {
+          "covered": 0,
+          "total": 3,
+          "pct": 0
+        },
+        "branches": {
+          "covered": 0,
+          "total": 0,
+          "pct": 100
+        },
+        "functions": {
+          "covered": 0,
+          "total": 1,
+          "pct": 0
+        },
+        "lines": {
+          "covered": 0,
+          "total": 3,
+          "pct": 0
+        },
+        "uncoveredLines": [
+          3,
+          4,
+          5
+        ],
+        "partialBranchLines": []
+      },
+      "after": {
+        "statements": {
+          "covered": 3,
+          "total": 3,
+          "pct": 100
+        },
+        "branches": {
+          "covered": 0,
+          "total": 0,
+          "pct": 100
+        },
+        "functions": {
+          "covered": 1,
+          "total": 1,
+          "pct": 100
+        },
+        "lines": {
+          "covered": 3,
+          "total": 3,
+          "pct": 100
+        },
+        "uncoveredLines": [],
+        "partialBranchLines": []
+      }
+    }
+  ],
+  "final_patch_files": [
+    "backend/tests/config.test.ts",
+    "backend/tests/database.test.ts",
+    "backend/tests/lifespan.test.ts",
+    "backend/tests/main.test.ts"
+  ],
+  "formatted_files": []
+}

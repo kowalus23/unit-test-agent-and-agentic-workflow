@@ -1,0 +1,8 @@
+{
+  "name": "taskly-app-node",
+  "private": true,
+  "description": "Repository root. backend/, frontend/ and scripts/ are independent npm projects; this manifest has no dependencies or scripts and gives tools that resolve a package scope at the root (e.g. Node.js inside the Claude Code sandbox) a valid one.",
+  "engines": {
+    "node": ">=22.12"
+  }
+}

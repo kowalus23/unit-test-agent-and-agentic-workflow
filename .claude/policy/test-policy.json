@@ -1,0 +1,88 @@
+{
+  "$comment": "Single source of truth for what the unit-test agent may analyze and change. Read by the PreToolUse hook, the CI plan/guard/verify scripts and referenced by the skills. Paths are repository-relative globs (*, **, {a,b}).",
+  "version": 1,
+  "packages": {
+    "backend": {
+      "root": "backend",
+      "sources": ["backend/src/**/*.ts"],
+      "sourceExcludes": [
+        "backend/src/generated/**",
+        "backend/src/**/types.ts"
+      ],
+      "testFiles": ["backend/tests/**/*.test.ts"],
+      "writable": [
+        "backend/tests/**/*.test.ts",
+        "backend/tests/fixture.ts",
+        "backend/tests/helpers/**/*.ts"
+      ],
+      "ownerTest": {
+        "layout": "flat",
+        "directory": "backend/tests",
+        "featurePrefixOnCollision": true
+      }
+    },
+    "frontend": {
+      "root": "frontend",
+      "sources": ["frontend/src/**/*.{ts,tsx}"],
+      "sourceExcludes": [
+        "frontend/src/**/*.test.{ts,tsx}",
+        "frontend/src/**/*.stories.tsx",
+        "frontend/src/test/**",
+        "frontend/src/main.tsx",
+        "frontend/src/design-system/**",
+        "frontend/src/**/types.ts",
+        "frontend/src/**/*.types.ts",
+        "frontend/src/**/index.ts",
+        "frontend/src/**/*.d.ts",
+        "frontend/src/features/todos/api/queryKeys.ts",
+        "frontend/src/lib/queryClient.ts"
+      ],
+      "testFiles": ["frontend/src/**/*.test.{ts,tsx}"],
+      "writable": [
+        "frontend/src/**/*.test.{ts,tsx}",
+        "frontend/src/test/**/*.{ts,tsx}"
+      ],
+      "writableExcludes": ["frontend/src/test/setup.ts"],
+      "ownerTest": {
+        "layout": "colocated"
+      }
+    }
+  },
+  "agentConfigPaths": [
+    "**/CLAUDE.md",
+    "**/CLAUDE.local.md",
+    "**/AGENTS.md",
+    "**/.claude/**",
+    "**/.mcp.json",
+    ".github/**",
+    "scripts/**"
+  ],
+  "dependencyPaths": ["**/package.json", "**/package-lock.json", "**/.npmrc"],
+  "testConfigPaths": ["**/vitest.config.ts", "**/vite.config.ts", "**/tsconfig*.json", "frontend/src/test/setup.ts"],
+  "databasePaths": ["backend/prisma/**", "backend/src/core/database.ts", "backend/prisma.config.ts"],
+  "routing": {
+    "$comment": "Deterministic model routing by PR weight. In CI a weak attempt (failing tests, guard rejection, blocked run) escalates once to the next tier; L and sweeps do not escalate.",
+    "tiers": [
+      { "name": "S", "maxTargets": 2, "maxChangedLines": 60, "componentTargets": false, "model": "claude-haiku-5-5", "effort": "medium", "maxTurns": 30, "maxBudgetUsd": 0.75 },
+      { "name": "M", "maxTargets": 5, "maxChangedLines": 400, "componentTargets": true, "model": "claude-sonnet-5-5", "effort": "medium", "maxTurns": 45, "maxBudgetUsd": 2 },
+      { "name": "L", "maxTargets": 10, "maxChangedLines": 1500, "componentTargets": true, "model": "claude-sonnet-5-5", "effort": "high", "maxTurns": 70, "maxBudgetUsd": 4 }
+    ],
+    "escalation": { "S": "M", "M": "L", "L": null },
+    "sweep": { "model": "claude-sonnet-5-5", "effort": "high", "maxTurns": 120, "maxBudgetUsd": 8 }
+  },
+  "limits": {
+    "maxTargets": 10,
+    "maxChangedSourceLines": 1500,
+    "maxPatchFiles": 20,
+    "maxPatchAddedLines": 3000,
+    "maxPatchBytes": 262144
+  },
+  "forbiddenTestContent": [
+    { "pattern": "\\b(?:it|test|describe)\\.only\\s*\\(", "reason": "focused tests (.only) hide the rest of the suite" },
+    { "pattern": "\\b(?:it|test|describe)\\.(?:skip|todo|fails)\\s*\\(", "reason": "skipped or expected-to-fail tests must not be added; report suspected bugs instead" },
+    { "pattern": "\\bx(?:it|describe)\\s*\\(", "reason": "skipped tests (xit/xdescribe) must not be added" },
+    { "pattern": "\\.toMatch(?:Inline)?Snapshot\\s*\\(", "reason": "snapshot assertions are not allowed; assert observable behaviour explicitly" },
+    { "pattern": "process\\.env\\.(?:ANTHROPIC|GITHUB|GH_|ACTIONS_)", "reason": "tests must not read CI or model credentials" },
+    { "pattern": "\\b(?:child_process|node:child_process)\\b", "reason": "unit tests must not spawn processes" }
+  ]
+}

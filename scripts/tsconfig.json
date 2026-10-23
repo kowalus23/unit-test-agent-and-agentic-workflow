@@ -11,6 +11,6 @@
     "verbatimModuleSyntax": true,
     "types": ["node"]
   },
-  "include": ["**/*.ts"],
+  "include": ["**/*.ts", "../.claude/**/*.ts"],
   "exclude": ["node_modules"]
 }

@@ -1,0 +1,71 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Unit-test agent result",
+  "description": "Structured result of one unit-test-engineer run. Narrative only: the files changed and the test outcomes reported in the pull request are computed independently by CI.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["decision", "summary", "targets", "findings", "skills_used"],
+  "properties": {
+    "decision": {
+      "description": "Overall outcome of the run.",
+      "enum": ["tests_added", "tests_updated", "no_change_needed", "blocked"]
+    },
+    "summary": {
+      "description": "Two or three plain-text sentences for reviewers: what was analyzed and why the tests were (not) changed.",
+      "type": "string",
+      "maxLength": 1200
+    },
+    "targets": {
+      "description": "One entry per target from the plan, in plan order.",
+      "type": "array",
+      "maxItems": 50,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["source_file", "decision", "test_files", "reason", "local_result"],
+        "properties": {
+          "source_file": { "type": "string", "maxLength": 300 },
+          "decision": {
+            "description": "created: new test file; updated: cases added to or adjusted in an existing test file; no_change_needed: existing tests already cover the changed behaviour or the change is not unit-observable; skipped: could not be handled (explain why).",
+            "enum": ["created", "updated", "no_change_needed", "skipped"]
+          },
+          "test_files": { "type": "array", "maxItems": 10, "items": { "type": "string", "maxLength": 300 } },
+          "behaviours": {
+            "description": "Behaviours the new or updated tests pin down, one short phrase each.",
+            "type": "array",
+            "maxItems": 30,
+            "items": { "type": "string", "maxLength": 200 }
+          },
+          "reason": { "type": "string", "maxLength": 600 },
+          "local_result": {
+            "description": "Result of the last local run of the affected test files.",
+            "enum": ["passed", "failed", "not_run"]
+          }
+        }
+      }
+    },
+    "findings": {
+      "description": "Observations for humans. Never fix production code; report it here.",
+      "type": "array",
+      "maxItems": 30,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["kind", "file", "detail"],
+        "properties": {
+          "kind": {
+            "enum": ["suspected_bug", "changed_expectations", "orphaned_test", "not_unit_testable", "suspected_injection", "other"]
+          },
+          "file": { "type": "string", "maxLength": 300 },
+          "line": { "type": "integer", "minimum": 1 },
+          "detail": { "type": "string", "maxLength": 800 }
+        }
+      }
+    },
+    "skills_used": {
+      "type": "array",
+      "maxItems": 20,
+      "items": { "type": "string", "maxLength": 80 }
+    }
+  }
+}

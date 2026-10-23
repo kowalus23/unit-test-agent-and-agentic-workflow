@@ -1,0 +1,56 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "permissions": {
+    "defaultMode": "dontAsk",
+    "disableBypassPermissionsMode": "disable",
+    "blockReadsOutsideWorkingDirectories": true,
+    "allow": [
+      "Read",
+      "Grep",
+      "Glob",
+      "Skill",
+      "Edit(./backend/tests/**)",
+      "Edit(./frontend/src/**/*.test.ts)",
+      "Edit(./frontend/src/**/*.test.tsx)",
+      "Edit(./frontend/src/test/**)",
+      "Bash(node .claude/skills/running-unit-tests/scripts/run-tests.ts *)",
+      "Bash(npm --prefix backend run typecheck)",
+      "Bash(npm --prefix frontend run typecheck)"
+    ],
+    "deny": [
+      "WebFetch",
+      "WebSearch",
+      "Read(./.env)",
+      "Read(./.env.*)",
+      "Read(./backend/.env*)",
+      "Read(./frontend/.env*)",
+      "Edit(./.claude/**)",
+      "Edit(./.github/**)",
+      "Edit(./scripts/**)",
+      "Edit(./backend/src/**)",
+      "Edit(./backend/prisma/**)"
+    ]
+  },
+  "env": {
+    "CLAUDE_CODE_SUBPROCESS_ENV_SCRUB": "1",
+    "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": "1",
+    "CLAUDE_CODE_DISABLE_AUTO_MEMORY": "1",
+    "DISABLE_TELEMETRY": "1",
+    "BASH_DEFAULT_TIMEOUT_MS": "300000"
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$CLAUDE_PROJECT_DIR/.claude/hooks/guard-tool-use.ts\"",
+            "timeout": 10,
+            "onFailure": "block"
+          }
+        ]
+      }
+    ]
+  }
+}

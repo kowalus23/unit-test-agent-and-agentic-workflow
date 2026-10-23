@@ -1,0 +1,143 @@
+{
+  "version": 1,
+  "head_sha": "3b49fb7ed49aee6b14b1184b1187c6f36e9248aa",
+  "guard": {
+    "ok": true,
+    "violations": [],
+    "notices": [
+      {
+        "path": "backend/tests/validators.test.ts",
+        "kind": "modified_existing_test",
+        "detail": "1 existing line(s) changed (setup, imports or fixtures)"
+      }
+    ],
+    "files": [
+      {
+        "path": "backend/tests/validators.test.ts",
+        "package": "backend",
+        "status": "modified",
+        "added": 7,
+        "removed": 1
+      }
+    ]
+  },
+  "packages": {
+    "backend": {
+      "status": "accepted",
+      "reasons": [],
+      "test_files": [
+        "backend/tests/validators.test.ts"
+      ],
+      "typecheck": {
+        "baseline": true,
+        "patched": true
+      },
+      "baseline": {
+        "ran": true,
+        "passed": 48,
+        "failed": 0,
+        "failedTests": [],
+        "totals": {
+          "lines": 33.63,
+          "branches": 33.33
+        }
+      },
+      "patched": {
+        "ran": true,
+        "passed": 56,
+        "failed": 0,
+        "failedTests": [],
+        "totals": {
+          "lines": 33.63,
+          "branches": 33.33
+        }
+      },
+      "new_tests": {
+        "passed": 35,
+        "failed": 0
+      },
+      "stability": {
+        "runs": 3,
+        "failures": []
+      },
+      "coverage": {
+        "lines_before": 33.63,
+        "lines_after": 33.63,
+        "branches_before": 33.33,
+        "branches_after": 33.33
+      }
+    },
+    "frontend": {
+      "status": "not_touched",
+      "reasons": [],
+      "test_files": [],
+      "typecheck": null,
+      "baseline": null,
+      "patched": null,
+      "new_tests": {
+        "passed": 0,
+        "failed": 0
+      },
+      "stability": null,
+      "coverage": null
+    }
+  },
+  "targets": [
+    {
+      "source": "backend/src/features/todos/validators.ts",
+      "package": "backend",
+      "before": {
+        "statements": {
+          "covered": 7,
+          "total": 7,
+          "pct": 100
+        },
+        "branches": {
+          "covered": 0,
+          "total": 0,
+          "pct": 100
+        },
+        "functions": {
+          "covered": 1,
+          "total": 1,
+          "pct": 100
+        },
+        "lines": {
+          "covered": 7,
+          "total": 7,
+          "pct": 100
+        },
+        "uncoveredLines": [],
+        "partialBranchLines": []
+      },
+      "after": {
+        "statements": {
+          "covered": 7,
+          "total": 7,
+          "pct": 100
+        },
+        "branches": {
+          "covered": 0,
+          "total": 0,
+          "pct": 100
+        },
+        "functions": {
+          "covered": 1,
+          "total": 1,
+          "pct": 100
+        },
+        "lines": {
+          "covered": 7,
+          "total": 7,
+          "pct": 100
+        },
+        "uncoveredLines": [],
+        "partialBranchLines": []
+      }
+    }
+  ],
+  "final_patch_files": [
+    "backend/tests/validators.test.ts"
+  ],
+  "formatted_files": []
+}

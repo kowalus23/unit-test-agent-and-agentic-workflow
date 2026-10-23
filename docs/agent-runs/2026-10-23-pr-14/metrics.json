@@ -1,0 +1,42 @@
+{
+  "status": "ok",
+  "accepted_attempt": 2,
+  "total_cost_usd": 0.0704,
+  "total_turns": 29,
+  "total_duration_ms": 61367,
+  "attempts": [
+    {
+      "tier": "S",
+      "model": "claude-haiku-5-5",
+      "effort": "medium",
+      "maxTurns": 30,
+      "maxBudgetUsd": 0.75,
+      "status": "ok",
+      "subtype": "success",
+      "cost_usd": 0.010722430000000002,
+      "turns": 19,
+      "duration_ms": 38417,
+      "permission_denials": [],
+      "escalation_reason": "agent reported it was blocked",
+      "result_source": "structured_output"
+    },
+    {
+      "tier": "M",
+      "model": "claude-sonnet-5-5",
+      "effort": "medium",
+      "maxTurns": 45,
+      "maxBudgetUsd": 2,
+      "status": "ok",
+      "subtype": "success",
+      "cost_usd": 0.059713300000000004,
+      "turns": 10,
+      "duration_ms": 22950,
+      "permission_denials": [
+        "Bash",
+        "Bash"
+      ],
+      "escalation_reason": null,
+      "result_source": "structured_output"
+    }
+  ]
+}

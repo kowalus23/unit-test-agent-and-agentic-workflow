@@ -1,0 +1,53 @@
+{
+  "version": 1,
+  "mode": "pr",
+  "base_sha": "8bba64939d3797907ba077944c2571778b5d293a",
+  "head_sha": "3b49fb7ed49aee6b14b1184b1187c6f36e9248aa",
+  "run_agent": true,
+  "skip_reason": null,
+  "agent_commit": false,
+  "targets": [
+    {
+      "package": "backend",
+      "source": "backend/src/features/todos/validators.ts",
+      "status": "modified",
+      "kind": "module",
+      "changed_lines": [
+        [
+          22,
+          26
+        ]
+      ],
+      "changed_line_count": 5,
+      "owner_test": "backend/tests/validators.test.ts",
+      "owner_test_exists": true,
+      "related_tests": []
+    }
+  ],
+  "dropped_targets": [],
+  "ignored": [
+    {
+      "path": "backend/openapi.json",
+      "reason": "not unit-testable source (types, stories, config, generated or excluded)"
+    }
+  ],
+  "deleted_sources": [],
+  "author_test_changes": [],
+  "flags": {
+    "dependencies_changed": false,
+    "agent_config_changed": false,
+    "test_config_changed": false,
+    "database_changed": false,
+    "injection_suspected": false,
+    "injection_signals": []
+  },
+  "routing": {
+    "tier": "S",
+    "model": "claude-haiku-5-5",
+    "effort": "medium",
+    "max_turns": 30,
+    "max_budget_usd": 0.75,
+    "escalation_tier": "M",
+    "reason": "1 target(s), 5 changed source line(s), 0 component(s) -> smallest fitting tier S"
+  }
+}

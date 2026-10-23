@@ -1,0 +1,173 @@
+{
+  "decision": "tests_added",
+  "summary": "Swept 8 frontend UI targets. Created owner tests for AppProviders and TodoEmptyState, and added cases to the existing owner tests for the other six. The full frontend suite passes (75 tests, 16 files) and the frontend typecheck passes. I could not run the format check because the sandbox policy blocks it.",
+  "targets": [
+    {
+      "source_file": "frontend/src/app/AppProviders.tsx",
+      "decision": "created",
+      "test_files": [
+        "frontend/src/app/AppProviders.test.tsx"
+      ],
+      "reason": "No owner test existed. Both tests pass; coverage 100% on all four metrics.",
+      "behaviours": [
+        "children receive the injected query client and the design-system theme",
+        "falls back to the application query client when none is injected"
+      ],
+      "local_result": "passed"
+    },
+    {
+      "source_file": "frontend/src/features/todos/components/DeleteTodoDialog.tsx",
+      "decision": "updated",
+      "test_files": [
+        "frontend/src/features/todos/components/DeleteTodoDialog.test.tsx"
+      ],
+      "reason": "The owner test only covered the error and cancel path. Added the confirm, failure and locked-dialog cases; lines 100%. The only untaken branch is the `if (pending) return` guard on line 19, which a disabled button makes unreachable from the UI.",
+      "behaviours": [
+        "confirming deletes the task by id and reports it as deleted",
+        "a failed deletion does not report success, keeps the dialog open and allows retrying",
+        "the dialog and its Close, Cancel and confirm buttons are disabled with a 'Deleting…' label while the deletion is pending",
+        "the same lock applies when the page is busy, and clicking confirm calls nothing",
+        "no alert is shown when there is no error"
+      ],
+      "local_result": "passed"
+    },
+    {
+      "source_file": "frontend/src/features/todos/components/TodoEditor.tsx",
+      "decision": "updated",
+      "test_files": [
+        "frontend/src/features/todos/components/TodoEditor.test.tsx"
+      ],
+      "reason": "The owner test only covered creating a task. Added update, failure, busy and pending cases. The TodoForm double now also renders its initial and error props so they can be asserted. Coverage 100%.",
+      "behaviours": [
+        "editing an existing task updates it by id and reports 'Changes saved.'",
+        "the dialog title is 'Edit task' for an existing task",
+        "a failed save does not report success and keeps the editor open",
+        "a busy page blocks saving and disables Close",
+        "a pending create mutation blocks saving a new task",
+        "a pending create mutation does not block editing an existing task",
+        "the form is prefilled only for an existing task",
+        "the form shows the error of the mutation that matches the task being edited"
+      ],
+      "local_result": "passed"
+    },
+    {
+      "source_file": "frontend/src/features/todos/components/TodoEmptyState.tsx",
+      "decision": "created",
+      "test_files": [
+        "frontend/src/features/todos/components/TodoEmptyState.test.tsx"
+      ],
+      "reason": "No owner test existed. Three tests pass; coverage 100% on all four metrics.",
+      "behaviours": [
+        "with no tasks it shows the 'Add your first task' heading, its text, and a button that calls onCreate",
+        "with existing tasks it shows 'No matching tasks' with filter guidance and no button",
+        "the create button is disabled and ignores clicks when disabled"
+      ],
+      "local_result": "passed"
+    },
+    {
+      "source_file": "frontend/src/features/todos/components/TodoForm.tsx",
+      "decision": "updated",
+      "test_files": [
+        "frontend/src/features/todos/components/TodoForm.test.tsx"
+      ],
+      "reason": "Existing tests covered only title validation and a basic submit. Added the remaining form behaviours. Coverage 100%.",
+      "behaviours": [
+        "submits a trimmed description and a typed due date",
+        "prefills an existing task and submits a cleared due date as null",
+        "shows a message and does not submit when the title exceeds 120 characters",
+        "shows a message and does not submit when the description exceeds 2000 characters",
+        "a validation message disappears once the input is valid and the form submits",
+        "Cancel calls onCancel without submitting",
+        "the server error alert is shown only when an error is passed",
+        "while busy the fieldset and Cancel are disabled, the button reads 'Saving…', and clicks call nothing"
+      ],
+      "local_result": "passed"
+    },
+    {
+      "source_file": "frontend/src/features/todos/components/TodoItem.tsx",
+      "decision": "updated",
+      "test_files": [
+        "frontend/src/features/todos/components/TodoItem.test.tsx"
+      ],
+      "reason": "The owner test covered only an active task and Edit. Added the other branches with a fixed system date. Coverage 100%.",
+      "behaviours": [
+        "a completed task shows the 'Completed' badge, its id and priority, and a checked 'Mark as active' checkbox that calls onToggle",
+        "an active task's checkbox is labelled 'Complete: <title>'",
+        "the delete button calls onDelete only",
+        "the description is shown only when present",
+        "all controls are disabled and ignore clicks when busy",
+        "no due-date badge without a due date",
+        "an active task with a past due date shows '22 Oct 2026 · overdue'",
+        "a task due today is not overdue",
+        "a completed task with a past due date is not overdue"
+      ],
+      "local_result": "passed"
+    },
+    {
+      "source_file": "frontend/src/features/todos/components/TodoList.tsx",
+      "decision": "updated",
+      "test_files": [
+        "frontend/src/features/todos/components/TodoList.test.tsx"
+      ],
+      "reason": "The owner test covered only loading and empty. Added the failed, populated and wiring branches. The TodoItem and TodoEmptyState doubles became vi.fn with the same output so their props can be inspected. Coverage 100%.",
+      "behaviours": [
+        "loading takes precedence over a failed state",
+        "an unavailable message is shown when loading failed and there are no tasks",
+        "known tasks are still listed when a refresh failed",
+        "each task renders and its toggle, edit and delete handlers receive that task",
+        "the busy flag is forwarded to the items",
+        "the empty state receives hasTodos and disabled=busy, and onCreate is wired"
+      ],
+      "local_result": "passed"
+    },
+    {
+      "source_file": "frontend/src/features/todos/TodosPage.tsx",
+      "decision": "updated",
+      "test_files": [
+        "frontend/src/features/todos/TodosPage.test.tsx"
+      ],
+      "reason": "The owner test covered only the query-failure alert and retry. Added toggle, editor, delete and alert-selection cases. The child doubles became vi.fn with the same output. Lines 100%; the one untaken branch is on line 18, the `todosQuery.data ?? []` fallback. I added a test for the undefined-data case after that run, but did not re-measure coverage.",
+      "behaviours": [
+        "list props carry the todos, hasTodos, loading, failed and busy values",
+        "the header is disabled while loading or busy",
+        "the alert prefers the mutation error over the query error and is absent without errors",
+        "retry is disabled while fetching or busy and calls nothing",
+        "toggling an active task announces 'Another task complete. Well done!'",
+        "toggling a completed task announces 'Task marked as active.'",
+        "toggle sends the inverted completed flag",
+        "toggle does nothing while busy",
+        "a failed toggle announces nothing",
+        "the editor opens for a new task from the header or the empty list, and for the chosen task from the list",
+        "the editor closes on cancel, and on save it closes and announces the message",
+        "delete asks for confirmation and closes on cancel without announcing",
+        "a confirmed delete closes the dialog and announces 'Task deleted.'",
+        "a query without data is treated as an empty list"
+      ],
+      "local_result": "passed"
+    }
+  ],
+  "findings": [
+    {
+      "kind": "changed_expectations",
+      "file": "frontend/src/features/todos/components/TodoEditor.test.tsx",
+      "detail": "No assertion was changed. The existing TodoForm double now renders its initial and error props as text, so the new cases can check the form wiring. The original create test is unchanged and still passes."
+    },
+    {
+      "kind": "not_unit_testable",
+      "file": "frontend/src/features/todos/components/DeleteTodoDialog.tsx",
+      "line": 19,
+      "detail": "The `if (pending) return` guard in remove() cannot be reached through the UI, because the confirm button is already disabled while pending or busy. The tests check the disabled state and that clicking calls nothing. The guard's own branch stays untaken."
+    },
+    {
+      "kind": "not_unit_testable",
+      "file": "frontend/src/features/todos/components/TodoForm.tsx",
+      "line": 16,
+      "detail": "The 'Enter a valid date.' due-date message (utils/todos.ts validateTodo) is not reachable from the form test, because jsdom date inputs reject non-date text. The message comes from validateTodo, so it belongs in the utils tests, not here."
+    }
+  ],
+  "skills_used": [
+    "analyzing-test-impact",
+    "writing-frontend-unit-tests",
+    "running-unit-tests"
+  ]
+}

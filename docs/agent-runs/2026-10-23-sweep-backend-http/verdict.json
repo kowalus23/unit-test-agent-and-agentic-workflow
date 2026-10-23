@@ -1,0 +1,241 @@
+{
+  "version": 1,
+  "head_sha": "8bba64939d3797907ba077944c2571778b5d293a",
+  "guard": {
+    "ok": true,
+    "violations": [],
+    "notices": [],
+    "files": [
+      {
+        "path": "backend/tests/factory.test.ts",
+        "package": "backend",
+        "status": "added",
+        "added": 87,
+        "removed": 0
+      },
+      {
+        "path": "backend/tests/router.test.ts",
+        "package": "backend",
+        "status": "modified",
+        "added": 61,
+        "removed": 0
+      }
+    ]
+  },
+  "packages": {
+    "backend": {
+      "status": "accepted",
+      "reasons": [],
+      "test_files": [
+        "backend/tests/factory.test.ts",
+        "backend/tests/router.test.ts"
+      ],
+      "typecheck": {
+        "baseline": true,
+        "patched": true
+      },
+      "baseline": {
+        "ran": true,
+        "passed": 48,
+        "failed": 0,
+        "failedTests": [],
+        "totals": {
+          "lines": 33.02,
+          "branches": 33.33
+        }
+      },
+      "patched": {
+        "ran": true,
+        "passed": 75,
+        "failed": 0,
+        "failedTests": [],
+        "totals": {
+          "lines": 66.05,
+          "branches": 83.33
+        }
+      },
+      "new_tests": {
+        "passed": 33,
+        "failed": 0
+      },
+      "stability": {
+        "runs": 3,
+        "failures": []
+      },
+      "coverage": {
+        "lines_before": 33.02,
+        "lines_after": 66.05,
+        "branches_before": 33.33,
+        "branches_after": 83.33
+      }
+    },
+    "frontend": {
+      "status": "not_touched",
+      "reasons": [],
+      "test_files": [],
+      "typecheck": null,
+      "baseline": null,
+      "patched": null,
+      "new_tests": {
+        "passed": 0,
+        "failed": 0
+      },
+      "stability": null,
+      "coverage": null
+    }
+  },
+  "targets": [
+    {
+      "source": "backend/src/factory.ts",
+      "package": "backend",
+      "before": {
+        "statements": {
+          "covered": 0,
+          "total": 22,
+          "pct": 0
+        },
+        "branches": {
+          "covered": 0,
+          "total": 14,
+          "pct": 0
+        },
+        "functions": {
+          "covered": 0,
+          "total": 4,
+          "pct": 0
+        },
+        "lines": {
+          "covered": 0,
+          "total": 17,
+          "pct": 0
+        },
+        "uncoveredLines": [
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18,
+          19,
+          20,
+          21,
+          22,
+          23,
+          24,
+          26,
+          27
+        ],
+        "partialBranchLines": [
+          20,
+          21,
+          22
+        ]
+      },
+      "after": {
+        "statements": {
+          "covered": 22,
+          "total": 22,
+          "pct": 100
+        },
+        "branches": {
+          "covered": 14,
+          "total": 14,
+          "pct": 100
+        },
+        "functions": {
+          "covered": 4,
+          "total": 4,
+          "pct": 100
+        },
+        "lines": {
+          "covered": 17,
+          "total": 17,
+          "pct": 100
+        },
+        "uncoveredLines": [],
+        "partialBranchLines": []
+      }
+    },
+    {
+      "source": "backend/src/features/todos/router.ts",
+      "package": "backend",
+      "before": {
+        "statements": {
+          "covered": 13,
+          "total": 32,
+          "pct": 40.63
+        },
+        "branches": {
+          "covered": 2,
+          "total": 12,
+          "pct": 16.67
+        },
+        "functions": {
+          "covered": 3,
+          "total": 7,
+          "pct": 42.86
+        },
+        "lines": {
+          "covered": 11,
+          "total": 25,
+          "pct": 44
+        },
+        "uncoveredLines": [
+          8,
+          9,
+          10,
+          11,
+          20,
+          21,
+          22,
+          25,
+          26,
+          27,
+          28,
+          29,
+          32,
+          33
+        ],
+        "partialBranchLines": [
+          9,
+          21,
+          26,
+          28,
+          32
+        ]
+      },
+      "after": {
+        "statements": {
+          "covered": 32,
+          "total": 32,
+          "pct": 100
+        },
+        "branches": {
+          "covered": 12,
+          "total": 12,
+          "pct": 100
+        },
+        "functions": {
+          "covered": 7,
+          "total": 7,
+          "pct": 100
+        },
+        "lines": {
+          "covered": 25,
+          "total": 25,
+          "pct": 100
+        },
+        "uncoveredLines": [],
+        "partialBranchLines": []
+      }
+    }
+  ],
+  "final_patch_files": [
+    "backend/tests/factory.test.ts",
+    "backend/tests/router.test.ts"
+  ],
+  "formatted_files": []
+}
