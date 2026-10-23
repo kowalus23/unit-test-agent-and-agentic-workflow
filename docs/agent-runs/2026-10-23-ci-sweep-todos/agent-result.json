@@ -1,0 +1,26 @@
+{
+  "decision": "tests_updated",
+  "summary": "Swept frontend/src/features/todos/utils/todos.ts. The existing owner test already covered every function and passed (29 tests), with one untaken branch at line 52, the undated fallback in the due-date sort. I added one case for undated tasks under due-date sort. The owner test now passes (30 tests), the file shows 100% branch coverage in the last run, and the frontend typecheck passes.",
+  "targets": [
+    {
+      "source_file": "frontend/src/features/todos/utils/todos.ts",
+      "decision": "updated",
+      "test_files": [
+        "frontend/src/features/todos/utils/todos.test.ts"
+      ],
+      "reason": "Baseline passed with 97.22% branch coverage. Line 52 (the due_date ?? '9999' fallback) had an untaken branch, so I added one case. Afterwards 30 tests pass and branch coverage is 100%.",
+      "local_result": "passed",
+      "behaviours": [
+        "Sorting by due date puts tasks without a due date after dated tasks, whatever their input order",
+        "Tasks without a due date are ordered by newest id first when sorting by due date"
+      ]
+    }
+  ],
+  "findings": [],
+  "skills_used": [
+    "analyzing-test-impact",
+    "running-unit-tests",
+    "reviewing-test-quality",
+    "reporting-test-results"
+  ]
+}
