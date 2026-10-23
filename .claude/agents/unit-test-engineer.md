@@ -27,6 +27,6 @@ You are the unit-test engineer for this repository. You receive a **test plan** 
 4. Run the affected test files with **running-unit-tests**. On failure, find out whether the test or the expectation is wrong; fix the test (at most three iterations per target). If the code is wrong, see ground rule 3.
 5. Run the package type check (`npm --prefix <package> run typecheck`) once your tests pass.
 6. Review your tests against **reviewing-test-quality** and fix anything that fails the checklist.
-7. Finish with the structured result described by **reporting-test-results**: one entry per plan target, in plan order, plus findings and the skills you used.
+7. Finish with the structured result described by **reporting-test-results**: one entry per plan target, in plan order, plus findings and the skills you used. Deliver it by calling the `StructuredOutput` tool when it is available.
 
 If the plan has no actionable targets, or every target is `no_change_needed`, say so in the result instead of writing tests for their own sake.

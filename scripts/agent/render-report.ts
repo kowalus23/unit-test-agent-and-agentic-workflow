@@ -10,6 +10,7 @@ import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { parseArgs } from 'node:util';
+import { loadSchema, validate } from '../../.claude/lib/json-schema.ts';
 import type { FileCoverage } from '../../.claude/lib/vitest-report.ts';
 import type { Plan } from './plan.ts';
 import type { Attempt } from './run-agent.ts';
@@ -48,9 +49,9 @@ export function plain(text: unknown, max = 500): string {
 /** Inline code for trusted, policy-validated repository paths. */
 const code = (path: string) => `\`${path.replace(/`/g, '')}\``;
 
+/** Only a result that fully matches the schema is rendered; anything else is treated as missing. */
 function isAgentResult(value: unknown): value is AgentResult {
-  const v = value as AgentResult;
-  return !!v && typeof v === 'object' && typeof v.decision === 'string' && Array.isArray(v.targets) && Array.isArray(v.findings);
+  return value !== null && value !== undefined && validate(loadSchema(), value).length === 0;
 }
 
 const pct = (coverage: FileCoverage | null | undefined) => (coverage ? `${coverage.lines.pct}%` : 'n/a');

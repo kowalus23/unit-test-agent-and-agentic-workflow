@@ -17,6 +17,7 @@ import { mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { parseArgs } from 'node:util';
+import { extractJsonBlock, loadSchema, validate } from '../../.claude/lib/json-schema.ts';
 import { checkPatch } from '../../.claude/lib/patch-guard.ts';
 import { loadPolicy, type TestPolicy, type TierName } from '../../.claude/lib/policy.ts';
 import type { Plan } from './plan.ts';
@@ -42,6 +43,7 @@ export type Attempt = AttemptSettings & {
   duration_ms: number;
   permission_denials: string[];
   escalation_reason: string | null;
+  result_source?: 'structured_output' | 'text_fallback';
 };
 
 export function buildPrompt(plan: Plan): string {
@@ -158,10 +160,17 @@ function runOnce(claude: string, repo: string, prompt: string, settings: Attempt
     duration_ms: typeof output.duration_ms === 'number' ? output.duration_ms : base.duration_ms,
     permission_denials: denials.map((denial: { tool_name?: string }) => String(denial.tool_name ?? 'unknown')),
     status: 'ok',
+    result_source: 'structured_output',
   };
-  const structured = output.structured_output;
-  if (output.is_error === true || attempt.subtype !== 'success') return { attempt: { ...attempt, status: 'agent_error' }, result: structured ?? null };
-  if (!structured || typeof structured !== 'object') return { attempt: { ...attempt, status: 'no_structured_output' }, result: null };
+  if (output.is_error === true || attempt.subtype !== 'success') return { attempt: { ...attempt, status: 'agent_error' }, result: null };
+  // Prefer the tool-delivered result; accept a final ```json block only if it validates too.
+  let structured: unknown = output.structured_output;
+  if (structured === undefined || structured === null) {
+    structured = typeof output.result === 'string' ? extractJsonBlock(output.result) : null;
+    attempt.result_source = 'text_fallback';
+  }
+  const errors = structured ? validate(loadSchema(RESULT_SCHEMA), structured) : ['no result'];
+  if (errors.length > 0) return { attempt: { ...attempt, status: 'no_structured_output', subtype: errors.slice(0, 3).join('; ') }, result: null };
   return { attempt, result: structured };
 }
 

@@ -2,6 +2,8 @@ import assert from 'node:assert/strict';
 import { describe, test } from 'node:test';
 import { plain, renderReport, REPORT_MARKER } from '../agent/render-report.ts';
 import { escalationReason, type Attempt } from '../agent/run-agent.ts';
+import { readFileSync } from 'node:fs';
+import { extractJsonBlock, loadSchema, validate } from '../../.claude/lib/json-schema.ts';
 import { buildCommitInput } from '../agent/apply-commit.ts';
 import { judgePackage } from '../agent/verify.ts';
 
@@ -139,5 +141,24 @@ describe('escalationReason carve-out', () => {
   test('does not escalate when the agent explains a failure as a suspected bug', () => {
     const result = { targets: [{ source_file: 'backend/src/a.ts', test_files: ['backend/tests/a.test.ts'], local_result: 'failed' }], findings: [{ kind: 'suspected_bug', file: 'backend/src/a.ts' }] };
     assert.equal(escalationReason({ status: 'ok' } as Attempt, result, true), null);
+  });
+});
+
+describe('agent result schema', () => {
+  const schema = loadSchema();
+  test('accepts the JSON a real run printed as text, via the fallback extractor', () => {
+    const text = readFileSync(new URL('./fixtures/agent-text-result.txt', import.meta.url), 'utf8');
+    const result = extractJsonBlock(text);
+    assert.deepEqual(validate(schema, result), []);
+  });
+  test('rejects missing fields, unknown fields, bad enums and oversized strings', () => {
+    const base = { decision: 'tests_added', summary: 's', targets: [], findings: [], skills_used: [] };
+    assert.deepEqual(validate(schema, base), []);
+    assert.ok(validate(schema, { ...base, decision: 'merged' }).some((error) => error.includes('one of')));
+    assert.ok(validate(schema, { ...base, extra: 1 }).some((error) => error.includes('not allowed')));
+    assert.ok(validate(schema, { ...base, summary: 'x'.repeat(5000) }).some((error) => error.includes('longer')));
+    const { findings: _findings, ...missing } = base;
+    assert.ok(validate(schema, missing).some((error) => error.includes('findings: required')));
+    assert.ok(validate(schema, { ...base, findings: [{ kind: 'suspected_bug', file: 'a', detail: 'b', line: 0 }] }).some((error) => error.includes('below')));
   });
 });

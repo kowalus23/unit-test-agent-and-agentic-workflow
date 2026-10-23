@@ -7,6 +7,11 @@ description: Fills the final structured result of a unit-test run as defined by 
 
 The result is narrative for reviewers. The files you changed and the test outcomes are recomputed independently from your changes, so a wrong claim is caught and costs trust. Report only what your latest runs showed.
 
+## How to deliver it
+
+- If a `StructuredOutput` tool is available, your last action is one call to it with the result object as its input. Do not also print the JSON.
+- Only when no such tool exists, end with the result as a single fenced `json` block and nothing after it.
+
 ## Plain-text rules (every string field)
 
 The strings are reduced to single-line plain text and rendered into a public report. Formatting is lost or mangled, and links, mentions or copied text can mislead readers.
