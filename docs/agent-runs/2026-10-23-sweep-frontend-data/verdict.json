@@ -1,0 +1,802 @@
+{
+  "version": 1,
+  "head_sha": "8bba64939d3797907ba077944c2571778b5d293a",
+  "guard": {
+    "ok": true,
+    "violations": [],
+    "notices": [
+      {
+        "path": "frontend/src/features/todos/utils/todos.test.ts",
+        "kind": "modified_existing_test",
+        "detail": "3 existing line(s) changed (setup, imports or fixtures)"
+      },
+      {
+        "path": "frontend/src/hooks/useNotice.test.ts",
+        "kind": "modified_existing_test",
+        "detail": "2 existing line(s) changed (setup, imports or fixtures)"
+      }
+    ],
+    "files": [
+      {
+        "path": "frontend/src/features/todos/api/todos.test.ts",
+        "package": "frontend",
+        "status": "modified",
+        "added": 31,
+        "removed": 0
+      },
+      {
+        "path": "frontend/src/features/todos/hooks/useCreateTodoMutation.test.ts",
+        "package": "frontend",
+        "status": "added",
+        "added": 90,
+        "removed": 0
+      },
+      {
+        "path": "frontend/src/features/todos/hooks/useDeleteTodoMutation.test.ts",
+        "package": "frontend",
+        "status": "added",
+        "added": 77,
+        "removed": 0
+      },
+      {
+        "path": "frontend/src/features/todos/hooks/useTodoFilters.test.ts",
+        "package": "frontend",
+        "status": "added",
+        "added": 46,
+        "removed": 0
+      },
+      {
+        "path": "frontend/src/features/todos/hooks/useTodosBusy.test.ts",
+        "package": "frontend",
+        "status": "added",
+        "added": 49,
+        "removed": 0
+      },
+      {
+        "path": "frontend/src/features/todos/hooks/useTodosQuery.test.ts",
+        "package": "frontend",
+        "status": "added",
+        "added": 39,
+        "removed": 0
+      },
+      {
+        "path": "frontend/src/features/todos/hooks/useUpdateTodoMutation.test.ts",
+        "package": "frontend",
+        "status": "added",
+        "added": 79,
+        "removed": 0
+      },
+      {
+        "path": "frontend/src/features/todos/utils/todos.test.ts",
+        "package": "frontend",
+        "status": "modified",
+        "added": 169,
+        "removed": 3
+      },
+      {
+        "path": "frontend/src/hooks/useNotice.test.ts",
+        "package": "frontend",
+        "status": "modified",
+        "added": 51,
+        "removed": 2
+      },
+      {
+        "path": "frontend/src/lib/http.test.ts",
+        "package": "frontend",
+        "status": "added",
+        "added": 90,
+        "removed": 0
+      }
+    ]
+  },
+  "packages": {
+    "backend": {
+      "status": "not_touched",
+      "reasons": [],
+      "test_files": [],
+      "typecheck": null,
+      "baseline": null,
+      "patched": null,
+      "new_tests": {
+        "passed": 0,
+        "failed": 0
+      },
+      "stability": null,
+      "coverage": null
+    },
+    "frontend": {
+      "status": "accepted",
+      "reasons": [],
+      "test_files": [
+        "frontend/src/features/todos/api/todos.test.ts",
+        "frontend/src/features/todos/hooks/useCreateTodoMutation.test.ts",
+        "frontend/src/features/todos/hooks/useDeleteTodoMutation.test.ts",
+        "frontend/src/features/todos/hooks/useTodoFilters.test.ts",
+        "frontend/src/features/todos/hooks/useTodosBusy.test.ts",
+        "frontend/src/features/todos/hooks/useTodosQuery.test.ts",
+        "frontend/src/features/todos/hooks/useUpdateTodoMutation.test.ts",
+        "frontend/src/features/todos/utils/todos.test.ts",
+        "frontend/src/hooks/useNotice.test.ts",
+        "frontend/src/lib/http.test.ts"
+      ],
+      "typecheck": {
+        "baseline": true,
+        "patched": true
+      },
+      "baseline": {
+        "ran": true,
+        "passed": 18,
+        "failed": 0,
+        "failedTests": [],
+        "totals": {
+          "lines": 47.68,
+          "branches": 43.79
+        }
+      },
+      "patched": {
+        "ran": true,
+        "passed": 82,
+        "failed": 0,
+        "failedTests": [],
+        "totals": {
+          "lines": 82.11,
+          "branches": 70.8
+        }
+      },
+      "new_tests": {
+        "passed": 69,
+        "failed": 0
+      },
+      "stability": {
+        "runs": 3,
+        "failures": []
+      },
+      "coverage": {
+        "lines_before": 47.68,
+        "lines_after": 82.11,
+        "branches_before": 43.79,
+        "branches_after": 70.8
+      }
+    }
+  },
+  "targets": [
+    {
+      "source": "frontend/src/features/todos/api/todos.ts",
+      "package": "frontend",
+      "before": {
+        "statements": {
+          "covered": 4,
+          "total": 7,
+          "pct": 57.14
+        },
+        "branches": {
+          "covered": 0,
+          "total": 0,
+          "pct": 100
+        },
+        "functions": {
+          "covered": 2,
+          "total": 4,
+          "pct": 50
+        },
+        "lines": {
+          "covered": 4,
+          "total": 7,
+          "pct": 57.14
+        },
+        "uncoveredLines": [
+          21,
+          22,
+          33
+        ],
+        "partialBranchLines": []
+      },
+      "after": {
+        "statements": {
+          "covered": 7,
+          "total": 7,
+          "pct": 100
+        },
+        "branches": {
+          "covered": 0,
+          "total": 0,
+          "pct": 100
+        },
+        "functions": {
+          "covered": 4,
+          "total": 4,
+          "pct": 100
+        },
+        "lines": {
+          "covered": 7,
+          "total": 7,
+          "pct": 100
+        },
+        "uncoveredLines": [],
+        "partialBranchLines": []
+      }
+    },
+    {
+      "source": "frontend/src/features/todos/hooks/useCreateTodoMutation.ts",
+      "package": "frontend",
+      "before": {
+        "statements": {
+          "covered": 0,
+          "total": 7,
+          "pct": 0
+        },
+        "branches": {
+          "covered": 0,
+          "total": 1,
+          "pct": 0
+        },
+        "functions": {
+          "covered": 0,
+          "total": 5,
+          "pct": 0
+        },
+        "lines": {
+          "covered": 0,
+          "total": 6,
+          "pct": 0
+        },
+        "uncoveredLines": [
+          7,
+          8,
+          10,
+          13,
+          14,
+          16
+        ],
+        "partialBranchLines": [
+          14
+        ]
+      },
+      "after": {
+        "statements": {
+          "covered": 7,
+          "total": 7,
+          "pct": 100
+        },
+        "branches": {
+          "covered": 1,
+          "total": 1,
+          "pct": 100
+        },
+        "functions": {
+          "covered": 5,
+          "total": 5,
+          "pct": 100
+        },
+        "lines": {
+          "covered": 6,
+          "total": 6,
+          "pct": 100
+        },
+        "uncoveredLines": [],
+        "partialBranchLines": []
+      }
+    },
+    {
+      "source": "frontend/src/features/todos/hooks/useDeleteTodoMutation.ts",
+      "package": "frontend",
+      "before": {
+        "statements": {
+          "covered": 0,
+          "total": 7,
+          "pct": 0
+        },
+        "branches": {
+          "covered": 0,
+          "total": 0,
+          "pct": 100
+        },
+        "functions": {
+          "covered": 0,
+          "total": 5,
+          "pct": 0
+        },
+        "lines": {
+          "covered": 0,
+          "total": 6,
+          "pct": 0
+        },
+        "uncoveredLines": [
+          7,
+          8,
+          10,
+          12,
+          13,
+          14
+        ],
+        "partialBranchLines": []
+      },
+      "after": {
+        "statements": {
+          "covered": 7,
+          "total": 7,
+          "pct": 100
+        },
+        "branches": {
+          "covered": 0,
+          "total": 0,
+          "pct": 100
+        },
+        "functions": {
+          "covered": 5,
+          "total": 5,
+          "pct": 100
+        },
+        "lines": {
+          "covered": 6,
+          "total": 6,
+          "pct": 100
+        },
+        "uncoveredLines": [],
+        "partialBranchLines": []
+      }
+    },
+    {
+      "source": "frontend/src/features/todos/hooks/useTodoFilters.ts",
+      "package": "frontend",
+      "before": {
+        "statements": {
+          "covered": 0,
+          "total": 4,
+          "pct": 0
+        },
+        "branches": {
+          "covered": 0,
+          "total": 0,
+          "pct": 100
+        },
+        "functions": {
+          "covered": 0,
+          "total": 1,
+          "pct": 0
+        },
+        "lines": {
+          "covered": 0,
+          "total": 4,
+          "pct": 0
+        },
+        "uncoveredLines": [
+          6,
+          7,
+          8,
+          9
+        ],
+        "partialBranchLines": []
+      },
+      "after": {
+        "statements": {
+          "covered": 4,
+          "total": 4,
+          "pct": 100
+        },
+        "branches": {
+          "covered": 0,
+          "total": 0,
+          "pct": 100
+        },
+        "functions": {
+          "covered": 1,
+          "total": 1,
+          "pct": 100
+        },
+        "lines": {
+          "covered": 4,
+          "total": 4,
+          "pct": 100
+        },
+        "uncoveredLines": [],
+        "partialBranchLines": []
+      }
+    },
+    {
+      "source": "frontend/src/features/todos/hooks/useTodosBusy.ts",
+      "package": "frontend",
+      "before": {
+        "statements": {
+          "covered": 0,
+          "total": 1,
+          "pct": 0
+        },
+        "branches": {
+          "covered": 0,
+          "total": 0,
+          "pct": 100
+        },
+        "functions": {
+          "covered": 0,
+          "total": 1,
+          "pct": 0
+        },
+        "lines": {
+          "covered": 0,
+          "total": 1,
+          "pct": 0
+        },
+        "uncoveredLines": [
+          5
+        ],
+        "partialBranchLines": []
+      },
+      "after": {
+        "statements": {
+          "covered": 1,
+          "total": 1,
+          "pct": 100
+        },
+        "branches": {
+          "covered": 0,
+          "total": 0,
+          "pct": 100
+        },
+        "functions": {
+          "covered": 1,
+          "total": 1,
+          "pct": 100
+        },
+        "lines": {
+          "covered": 1,
+          "total": 1,
+          "pct": 100
+        },
+        "uncoveredLines": [],
+        "partialBranchLines": []
+      }
+    },
+    {
+      "source": "frontend/src/features/todos/hooks/useTodosQuery.ts",
+      "package": "frontend",
+      "before": {
+        "statements": {
+          "covered": 0,
+          "total": 2,
+          "pct": 0
+        },
+        "branches": {
+          "covered": 0,
+          "total": 0,
+          "pct": 100
+        },
+        "functions": {
+          "covered": 0,
+          "total": 2,
+          "pct": 0
+        },
+        "lines": {
+          "covered": 0,
+          "total": 2,
+          "pct": 0
+        },
+        "uncoveredLines": [
+          6,
+          8
+        ],
+        "partialBranchLines": []
+      },
+      "after": {
+        "statements": {
+          "covered": 2,
+          "total": 2,
+          "pct": 100
+        },
+        "branches": {
+          "covered": 0,
+          "total": 0,
+          "pct": 100
+        },
+        "functions": {
+          "covered": 2,
+          "total": 2,
+          "pct": 100
+        },
+        "lines": {
+          "covered": 2,
+          "total": 2,
+          "pct": 100
+        },
+        "uncoveredLines": [],
+        "partialBranchLines": []
+      }
+    },
+    {
+      "source": "frontend/src/features/todos/hooks/useUpdateTodoMutation.ts",
+      "package": "frontend",
+      "before": {
+        "statements": {
+          "covered": 0,
+          "total": 7,
+          "pct": 0
+        },
+        "branches": {
+          "covered": 0,
+          "total": 2,
+          "pct": 0
+        },
+        "functions": {
+          "covered": 0,
+          "total": 5,
+          "pct": 0
+        },
+        "lines": {
+          "covered": 0,
+          "total": 6,
+          "pct": 0
+        },
+        "uncoveredLines": [
+          7,
+          8,
+          11,
+          13,
+          14,
+          15
+        ],
+        "partialBranchLines": [
+          15
+        ]
+      },
+      "after": {
+        "statements": {
+          "covered": 7,
+          "total": 7,
+          "pct": 100
+        },
+        "branches": {
+          "covered": 2,
+          "total": 2,
+          "pct": 100
+        },
+        "functions": {
+          "covered": 5,
+          "total": 5,
+          "pct": 100
+        },
+        "lines": {
+          "covered": 6,
+          "total": 6,
+          "pct": 100
+        },
+        "uncoveredLines": [],
+        "partialBranchLines": []
+      }
+    },
+    {
+      "source": "frontend/src/features/todos/utils/todos.ts",
+      "package": "frontend",
+      "before": {
+        "statements": {
+          "covered": 15,
+          "total": 27,
+          "pct": 55.56
+        },
+        "branches": {
+          "covered": 12,
+          "total": 36,
+          "pct": 33.33
+        },
+        "functions": {
+          "covered": 4,
+          "total": 6,
+          "pct": 66.67
+        },
+        "lines": {
+          "covered": 13,
+          "total": 25,
+          "pct": 52
+        },
+        "uncoveredLines": [
+          10,
+          12,
+          14,
+          15,
+          20,
+          50,
+          51,
+          55,
+          60,
+          61,
+          62,
+          66
+        ],
+        "partialBranchLines": [
+          8,
+          11,
+          13,
+          15,
+          16,
+          17,
+          18,
+          37,
+          46,
+          48,
+          50,
+          51,
+          52,
+          53,
+          55,
+          62
+        ]
+      },
+      "after": {
+        "statements": {
+          "covered": 27,
+          "total": 27,
+          "pct": 100
+        },
+        "branches": {
+          "covered": 35,
+          "total": 36,
+          "pct": 97.22
+        },
+        "functions": {
+          "covered": 6,
+          "total": 6,
+          "pct": 100
+        },
+        "lines": {
+          "covered": 25,
+          "total": 25,
+          "pct": 100
+        },
+        "uncoveredLines": [],
+        "partialBranchLines": [
+          52
+        ]
+      }
+    },
+    {
+      "source": "frontend/src/hooks/useNotice.ts",
+      "package": "frontend",
+      "before": {
+        "statements": {
+          "covered": 6,
+          "total": 11,
+          "pct": 54.55
+        },
+        "branches": {
+          "covered": 3,
+          "total": 4,
+          "pct": 75
+        },
+        "functions": {
+          "covered": 2,
+          "total": 5,
+          "pct": 40
+        },
+        "lines": {
+          "covered": 5,
+          "total": 7,
+          "pct": 71.43
+        },
+        "uncoveredLines": [
+          8,
+          9
+        ],
+        "partialBranchLines": [
+          7
+        ]
+      },
+      "after": {
+        "statements": {
+          "covered": 11,
+          "total": 11,
+          "pct": 100
+        },
+        "branches": {
+          "covered": 4,
+          "total": 4,
+          "pct": 100
+        },
+        "functions": {
+          "covered": 5,
+          "total": 5,
+          "pct": 100
+        },
+        "lines": {
+          "covered": 7,
+          "total": 7,
+          "pct": 100
+        },
+        "uncoveredLines": [],
+        "partialBranchLines": []
+      }
+    },
+    {
+      "source": "frontend/src/lib/http.ts",
+      "package": "frontend",
+      "before": {
+        "statements": {
+          "covered": 0,
+          "total": 12,
+          "pct": 0
+        },
+        "branches": {
+          "covered": 0,
+          "total": 10,
+          "pct": 0
+        },
+        "functions": {
+          "covered": 0,
+          "total": 2,
+          "pct": 0
+        },
+        "lines": {
+          "covered": 0,
+          "total": 10,
+          "pct": 0
+        },
+        "uncoveredLines": [
+          3,
+          4,
+          9,
+          10,
+          12,
+          13,
+          14,
+          15,
+          18,
+          24
+        ],
+        "partialBranchLines": [
+          9,
+          12,
+          14,
+          20,
+          21,
+          24
+        ]
+      },
+      "after": {
+        "statements": {
+          "covered": 12,
+          "total": 12,
+          "pct": 100
+        },
+        "branches": {
+          "covered": 10,
+          "total": 10,
+          "pct": 100
+        },
+        "functions": {
+          "covered": 2,
+          "total": 2,
+          "pct": 100
+        },
+        "lines": {
+          "covered": 10,
+          "total": 10,
+          "pct": 100
+        },
+        "uncoveredLines": [],
+        "partialBranchLines": []
+      }
+    }
+  ],
+  "final_patch_files": [
+    "frontend/src/features/todos/api/todos.test.ts",
+    "frontend/src/features/todos/hooks/useCreateTodoMutation.test.ts",
+    "frontend/src/features/todos/hooks/useDeleteTodoMutation.test.ts",
+    "frontend/src/features/todos/hooks/useTodoFilters.test.ts",
+    "frontend/src/features/todos/hooks/useTodosBusy.test.ts",
+    "frontend/src/features/todos/hooks/useTodosQuery.test.ts",
+    "frontend/src/features/todos/hooks/useUpdateTodoMutation.test.ts",
+    "frontend/src/features/todos/utils/todos.test.ts",
+    "frontend/src/hooks/useNotice.test.ts",
+    "frontend/src/lib/http.test.ts"
+  ],
+  "formatted_files": [
+    "frontend/src/features/todos/api/todos.test.ts",
+    "frontend/src/features/todos/hooks/useCreateTodoMutation.test.ts",
+    "frontend/src/features/todos/hooks/useDeleteTodoMutation.test.ts",
+    "frontend/src/features/todos/hooks/useTodoFilters.test.ts",
+    "frontend/src/features/todos/hooks/useTodosBusy.test.ts",
+    "frontend/src/features/todos/hooks/useTodosQuery.test.ts",
+    "frontend/src/features/todos/hooks/useUpdateTodoMutation.test.ts",
+    "frontend/src/features/todos/utils/todos.test.ts",
+    "frontend/src/hooks/useNotice.test.ts",
+    "frontend/src/lib/http.test.ts"
+  ]
+}

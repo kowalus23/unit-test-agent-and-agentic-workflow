@@ -1,0 +1,183 @@
+{
+  "decision": "tests_added",
+  "summary": "Swept 10 frontend targets. Added 7 new owner test files (http, 3 mutation hooks, useTodosQuery, useTodosBusy, useTodoFilters) and extended the 3 existing ones (api/todos, utils/todos, useNotice). The full frontend suite passes (82 tests, 21 files) and the frontend typecheck passes. Two suspected bugs in lib/http.ts are reported and not pinned.",
+  "targets": [
+    {
+      "source_file": "frontend/src/features/todos/api/todos.ts",
+      "decision": "updated",
+      "test_files": [
+        "frontend/src/features/todos/api/todos.test.ts"
+      ],
+      "reason": "The owner test covered only list and create; update and remove were untested. Coverage is now 100%.",
+      "local_result": "passed",
+      "behaviours": [
+        "update sends only the changed fields as a PATCH body, omitting undefined ones",
+        "update from a full task never sends read-only fields",
+        "remove sends DELETE to /todos/{id}"
+      ]
+    },
+    {
+      "source_file": "frontend/src/features/todos/hooks/useCreateTodoMutation.ts",
+      "decision": "created",
+      "test_files": [
+        "frontend/src/features/todos/hooks/useCreateTodoMutation.test.ts"
+      ],
+      "reason": "No owner test existed. Coverage is 100%.",
+      "local_result": "passed",
+      "behaviours": [
+        "puts the saved task first and drops a stale copy with the same id",
+        "creates the cached list when the cache is empty",
+        "leaves the cache untouched and exposes the error when saving fails",
+        "cancels an in-flight list refetch so stale data cannot overwrite the saved task"
+      ]
+    },
+    {
+      "source_file": "frontend/src/features/todos/hooks/useDeleteTodoMutation.ts",
+      "decision": "created",
+      "test_files": [
+        "frontend/src/features/todos/hooks/useDeleteTodoMutation.test.ts"
+      ],
+      "reason": "No owner test existed. Coverage is 100%.",
+      "local_result": "passed",
+      "behaviours": [
+        "removes the task from the cached list by id",
+        "does not create a list when nothing is cached",
+        "keeps the cache and exposes the error when deleting fails",
+        "cancels an in-flight refetch so the deleted task does not come back"
+      ]
+    },
+    {
+      "source_file": "frontend/src/features/todos/hooks/useTodoFilters.ts",
+      "decision": "created",
+      "test_files": [
+        "frontend/src/features/todos/hooks/useTodoFilters.test.ts"
+      ],
+      "reason": "No owner test existed. Coverage is 100%.",
+      "local_result": "passed",
+      "behaviours": [
+        "starts with filter all, empty search and sort newest",
+        "status filter narrows the visible tasks",
+        "sort change reorders the visible tasks",
+        "search and new input tasks recompute the visible tasks"
+      ]
+    },
+    {
+      "source_file": "frontend/src/features/todos/hooks/useTodosBusy.ts",
+      "decision": "created",
+      "test_files": [
+        "frontend/src/features/todos/hooks/useTodosBusy.test.ts"
+      ],
+      "reason": "No owner test existed. Coverage is 100%.",
+      "local_result": "passed",
+      "behaviours": [
+        "is busy exactly while a task mutation is pending",
+        "ignores mutations outside the todos key"
+      ]
+    },
+    {
+      "source_file": "frontend/src/features/todos/hooks/useTodosQuery.ts",
+      "decision": "created",
+      "test_files": [
+        "frontend/src/features/todos/hooks/useTodosQuery.test.ts"
+      ],
+      "reason": "No owner test existed. Coverage is 100%.",
+      "local_result": "passed",
+      "behaviours": [
+        "loads tasks, passes the abort signal to the API and fills the list cache",
+        "exposes a failed request as an error without retrying"
+      ]
+    },
+    {
+      "source_file": "frontend/src/features/todos/hooks/useUpdateTodoMutation.ts",
+      "decision": "created",
+      "test_files": [
+        "frontend/src/features/todos/hooks/useUpdateTodoMutation.test.ts"
+      ],
+      "reason": "No owner test existed. Coverage is 100%.",
+      "local_result": "passed",
+      "behaviours": [
+        "replaces only the updated task in the cached list",
+        "does not create a list when nothing is cached",
+        "leaves the cache untouched and exposes the error when updating fails",
+        "cancels an in-flight refetch so stale data cannot overwrite the saved task"
+      ]
+    },
+    {
+      "source_file": "frontend/src/features/todos/utils/todos.ts",
+      "decision": "updated",
+      "test_files": [
+        "frontend/src/features/todos/utils/todos.test.ts"
+      ],
+      "reason": "The owner test covered only two selectTodos cases. Added validateTodo, isOverdue, formatDate and the remaining sort modes. Line coverage is 100%; one branch on line 52 (due-date comparator) is still untaken.",
+      "local_result": "passed",
+      "behaviours": [
+        "priority ties break by id descending",
+        "due sort puts tasks without a due date last",
+        "due ties break by id descending",
+        "newest sorts by created_at and breaks ties by id",
+        "completed filter combined with a case-insensitive title search",
+        "no match returns an empty list",
+        "validateTodo rejects empty, whitespace-only and 121-character titles",
+        "validateTodo rejects 2001-character descriptions",
+        "validateTodo rejects malformed and impossible dates, including 2025-02-29",
+        "validateTodo reports every invalid field at once",
+        "validateTodo accepts boundary values (120 and 2000 characters, leap day, null date)",
+        "isOverdue is true only for an uncompleted task due before today, with a fixed clock",
+        "formatDate renders en-GB short dates"
+      ]
+    },
+    {
+      "source_file": "frontend/src/hooks/useNotice.ts",
+      "decision": "updated",
+      "test_files": [
+        "frontend/src/hooks/useNotice.test.ts"
+      ],
+      "reason": "The owner test checked only initial values; added timer behaviour with fake timers. Coverage is 100%.",
+      "local_result": "passed",
+      "behaviours": [
+        "clears the message exactly 4000 ms after notify",
+        "re-notifying the same text restarts the 4000 ms window",
+        "a newer notification replaces the message",
+        "notify keeps a stable identity across renders",
+        "unmount cancels the pending timer"
+      ]
+    },
+    {
+      "source_file": "frontend/src/lib/http.ts",
+      "decision": "created",
+      "test_files": [
+        "frontend/src/lib/http.test.ts"
+      ],
+      "reason": "No owner test existed; the todos API test mocks this module. Coverage is 100%. The two suspected bugs are left untested.",
+      "local_result": "passed",
+      "behaviours": [
+        "requests go under /api with a JSON Content-Type and the parsed body is returned",
+        "caller headers given as a plain object override the defaults",
+        "204 resolves to undefined",
+        "404 and 500 return the server detail or the generic message, and 422 returns the fixed validation message",
+        "non-JSON error bodies fall back to the generic message",
+        "network failure becomes the connection error",
+        "an aborted request rethrows the original error"
+      ]
+    }
+  ],
+  "findings": [
+    {
+      "kind": "suspected_bug",
+      "file": "frontend/src/lib/http.ts",
+      "line": 6,
+      "detail": "Caller headers are merged by spreading init.headers into a plain object. A Headers instance (or an array of tuples) spreads to nothing, so the caller's headers are silently dropped and only Content-Type is sent. Expected: caller headers are kept in any HeadersInit form. Not tested."
+    },
+    {
+      "kind": "suspected_bug",
+      "file": "frontend/src/lib/http.ts",
+      "line": 24,
+      "detail": "A 2xx response with a non-JSON body makes response.json() reject with a raw SyntaxError, whose parser message could reach the UI. Expected: a user-facing error like the other failure paths. Not tested."
+    }
+  ],
+  "skills_used": [
+    "analyzing-test-impact",
+    "writing-frontend-unit-tests",
+    "running-unit-tests"
+  ]
+}
