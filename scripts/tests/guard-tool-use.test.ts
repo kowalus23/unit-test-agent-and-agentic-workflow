@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { mkdirSync, mkdtempSync, realpathSync, symlinkSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, readFileSync, realpathSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { describe, test } from 'node:test';
@@ -76,5 +76,15 @@ describe('guard-tool-use', () => {
     assert.ok(!allowed('mcp__github__create_issue', {}));
     assert.ok(allowed('Skill', { skill: 'running-unit-tests' }));
     assert.ok(allowed('StructuredOutput', { decision: 'tests_added' }), 'the --json-schema result tool must stay available');
+  });
+});
+
+describe('agent settings', () => {
+  test('a hook that crashes or times out blocks the tool call', () => {
+    // Without onFailure "block" the CLI treats a failed hook as non-blocking and runs the tool.
+    const settings = JSON.parse(readFileSync(join(import.meta.dirname, '../../.claude/policy/agent-settings.json'), 'utf8'));
+    const hooks = settings.hooks.PreToolUse.flatMap((entry: { hooks: { command: string; onFailure?: string }[] }) => entry.hooks);
+    assert.ok(hooks.some((hook: { command: string }) => hook.command.includes('guard-tool-use.ts')));
+    for (const hook of hooks) assert.equal(hook.onFailure, 'block', hook.command);
   });
 });
