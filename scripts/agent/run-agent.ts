@@ -91,9 +91,11 @@ export function agentEnv(source: NodeJS.ProcessEnv): Record<string, string> {
 }
 
 function git(repo: string, args: string[], env?: Record<string, string>): string {
+  // git runs in the PR checkout and never needs the model credentials.
+  const inherited = Object.fromEntries(Object.entries(process.env).filter(([key]) => !CREDENTIAL_ENV.includes(key)));
   return spawnSync('git', ['-C', repo, '-c', 'core.quotePath=false', ...args], {
     encoding: 'utf8',
-    env: { ...process.env, ...env },
+    env: { ...inherited, ...env },
     maxBuffer: 64 * 1024 * 1024,
   }).stdout;
 }
@@ -133,6 +135,13 @@ export function errorSummary(stderr: string): string {
 /** Escalating only helps when the model actually worked; setup failures repeat on every tier. */
 export function canEscalate(attempt: Attempt): boolean {
   return attempt.turns > 0 && attempt.status !== 'launch_failed' && attempt.status !== 'timeout';
+}
+
+/** Tier of the next attempt: one escalation at most, and only after a weak attempt in which the model ran. */
+export function nextTier(policy: TestPolicy, tier: TierName | 'sweep', attempts: Attempt[], escalate: boolean): TierName | null {
+  const last = attempts[attempts.length - 1];
+  if (!escalate || tier === 'sweep' || attempts.length !== 1 || !last.escalation_reason || !canEscalate(last)) return null;
+  return policy.routing.escalation[tier];
 }
 
 function runOnce(claude: string, repo: string, prompt: string, settings: AttemptSettings, out: string, index: number): AgentRun {
@@ -259,8 +268,7 @@ function main(): void {
     writeFileSync(join(out, `attempt-${attempts.length}-result.json`), `${JSON.stringify(result, null, 2)}\n`);
     final = { result, patch, guard };
     console.log(`  -> ${attempt.status}, ${attempt.turns} turns, $${attempt.cost_usd.toFixed(4)}${attempt.escalation_reason ? `, not accepted: ${attempt.escalation_reason}` : ''}`);
-    const next: TierName | null = tier === 'sweep' ? null : policy.routing.escalation[tier];
-    tier = values.escalate && attempt.escalation_reason && canEscalate(attempt) && next ? next : null;
+    tier = nextTier(policy, tier, attempts, values.escalate!);
   }
 
   writeFileSync(join(out, 'agent.patch'), final!.patch);

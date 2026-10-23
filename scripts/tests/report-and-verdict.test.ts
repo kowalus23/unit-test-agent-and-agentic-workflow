@@ -1,9 +1,10 @@
 import assert from 'node:assert/strict';
 import { describe, test } from 'node:test';
 import { markApplied, plain, plainCapped, renderReport, REPORT_MARKER } from '../agent/render-report.ts';
-import { canEscalate, errorSummary, escalationReason, type Attempt } from '../agent/run-agent.ts';
+import { canEscalate, errorSummary, escalationReason, nextTier, type Attempt } from '../agent/run-agent.ts';
 import { readFileSync } from 'node:fs';
 import { extractJsonBlock, loadSchema, validate } from '../../.claude/lib/json-schema.ts';
+import { loadPolicy } from '../../.claude/lib/policy.ts';
 import { buildCommitInput } from '../agent/apply-commit.ts';
 import { judgePackage } from '../agent/verify.ts';
 
@@ -175,6 +176,19 @@ describe('setup failures', () => {
     assert.equal(canEscalate({ status: 'ok', turns: 12 } as Attempt), true);
   });
 
+  test('escalates a weak attempt once, never twice and never for a sweep', () => {
+    const policy = loadPolicy();
+    const weak = { status: 'ok', turns: 12, escalation_reason: 'agent reported failing tests' } as Attempt;
+    const good = { status: 'ok', turns: 12, escalation_reason: null } as Attempt;
+    assert.equal(nextTier(policy, 'S', [weak], true), 'M');
+    assert.equal(nextTier(policy, 'M', [weak, weak], true), null, 'a weak escalated attempt is final');
+    assert.equal(nextTier(policy, 'S', [good], true), null);
+    assert.equal(nextTier(policy, 'S', [weak], false), null, 'escalation is off outside CI');
+    assert.equal(nextTier(policy, 'L', [weak], true), null);
+    assert.equal(nextTier(policy, 'sweep', [weak], true), null);
+    assert.equal(nextTier(policy, 'S', [{ ...weak, status: 'launch_failed', turns: 0 }], true), null);
+  });
+
   test('reports a failed agent run as a failure, not as "no changes"', () => {
     const report = renderReport({
       plan: { version: 1, mode: 'pr', base_sha: 'b', head_sha: 'h', run_agent: true, skip_reason: null, agent_commit: false, targets: [], dropped_targets: [], ignored: [], deleted_sources: [], author_test_changes: [], flags: { dependencies_changed: false, agent_config_changed: false, test_config_changed: false, database_changed: false, injection_suspected: false, injection_signals: [] }, routing: { tier: 'S', model: 'm', effort: 'medium', max_turns: 1, max_budget_usd: 1, escalation_tier: null, reason: 'r' } },
@@ -185,6 +199,21 @@ describe('setup failures', () => {
     });
     assert.match(report, /agent run failed/);
     assert.match(report, /bubblewrap is required/);
+  });
+
+  test('renders tampered verdict and metrics fields as plain text', () => {
+    const evil = '<img src=x onerror=alert(1)> [x](https://evil.example) @maintainer';
+    const pkg = { status: 'rejected', reasons: [evil], test_files: [], typecheck: null, baseline: null, patched: { passed: evil, failed: 0 }, new_tests: { passed: evil, failed: 0 }, stability: { runs: evil, failures: [] }, coverage: { lines_before: evil, lines_after: 100 } };
+    const report = renderReport({
+      plan: { version: 1, mode: 'pr', base_sha: 'b', head_sha: 'h', run_agent: true, skip_reason: null, agent_commit: false, targets: [], dropped_targets: [], ignored: [], deleted_sources: [], author_test_changes: [], flags: { dependencies_changed: false, agent_config_changed: false, test_config_changed: false, database_changed: false, injection_suspected: false, injection_signals: [] }, routing: { tier: 'S', model: 'm', effort: 'medium', max_turns: 1, max_budget_usd: 1, escalation_tier: null, reason: 'r' } },
+      metrics: { status: 'ok', total_turns: evil, total_cost_usd: evil, attempts: [{ status: 'ok', model: evil, effort: evil, turns: 1 }] } as never,
+      result: null,
+      verdict: { version: 1, head_sha: 'h', guard: { ok: false, violations: [{ path: 'a`|\nb.test.ts', rule: evil, detail: evil }], notices: [{ path: 'c.test.ts', detail: evil }], files: [] }, packages: { [evil]: pkg } as never, targets: [], final_patch_files: [], formatted_files: [] } as never,
+      finalPatch: '',
+    });
+    assert.doesNotMatch(report, /<img|\]\(https|https:\/\/evil|@maintainer|NaN/);
+    assert.match(report, /`ab\.test\.ts`/, 'a path cannot break out of its code span or the table');
+    assert.match(report, /\| 0 passed, 0 failed \|/);
   });
 });
 

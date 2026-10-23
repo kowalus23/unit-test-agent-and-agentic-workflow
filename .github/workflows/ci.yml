@@ -239,7 +239,7 @@ jobs:
           # Online audits (impostor-commit, known-vulnerable-actions, ref-confusion)
           # verify that every pinned SHA really belongs to the named action.
           GH_TOKEN: ${{ github.token }}
-        run: '"$RUNNER_TEMP/zizmor/bin/zizmor" --format=github .github/'
+        run: '"$RUNNER_TEMP/zizmor/bin/zizmor" --persona=pedantic --format=github .github/'
       - name: Run shellcheck on repository scripts
         run: shellcheck scripts/*.sh
 
