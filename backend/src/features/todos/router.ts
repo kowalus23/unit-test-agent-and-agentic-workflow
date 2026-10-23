@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import type { TodoStore } from './types.js';
-import { createSchema, updateSchema, idSchema } from './validators.js';
+import { clearCompletedQuerySchema, createSchema, updateSchema, idSchema } from './validators.js';
 
 export function createTodosRouter(repository: TodoStore) {
   const router = Router();
@@ -15,6 +15,11 @@ export function createTodosRouter(repository: TodoStore) {
     const result = createSchema.safeParse(req.body);
     if (!result.success) return res.status(422).json({ detail: result.error.issues });
     res.status(201).json(await repository.create(result.data));
+  });
+  router.delete('/', async (req, res) => {
+    const result = clearCompletedQuerySchema.safeParse(req.query);
+    if (!result.success) return res.status(422).json({ detail: result.error.issues });
+    res.json({ deleted: await repository.deleteCompleted() });
   });
   router.get('/:id', async (req, res) => {
     const todo = await repository.get(Number(res.locals.todoId));

@@ -5,7 +5,7 @@ import { createTodosRouter } from '../src/features/todos/router.ts';
 import { todo } from './fixture.ts';
 
 function setup() {
-  const repository = { list: vi.fn().mockResolvedValue([todo]), create: vi.fn().mockResolvedValue(todo), get: vi.fn(), update: vi.fn(), delete: vi.fn() };
+  const repository = { list: vi.fn().mockResolvedValue([todo]), create: vi.fn().mockResolvedValue(todo), get: vi.fn(), update: vi.fn(), delete: vi.fn(), deleteCompleted: vi.fn().mockResolvedValue(0) };
   const app = express();
   app.use(express.json());
   app.use('/api/todos', createTodosRouter(repository));
@@ -86,6 +86,24 @@ it('deletes tasks with an empty 204 response', async () => {
   expect(response.text).toBe('');
   expect(repository.delete).toHaveBeenCalledWith(1);
 });
+it('clears completed tasks and reports how many were deleted', async () => {
+  const { app, repository } = setup();
+  repository.deleteCompleted.mockResolvedValue(3);
+  const response = await request(app).delete('/api/todos?completed=true');
+  expect(response.status).toBe(200);
+  expect(response.body).toEqual({ deleted: 3 });
+  expect(repository.deleteCompleted).toHaveBeenCalledOnce();
+  expect(repository.delete).not.toHaveBeenCalled();
+});
+it.each(['', '?completed=false', '?completed=1', '?completed=true&completed=true', '?completed=true&extra=1', '?other=true'])(
+  'rejects clearing completed tasks without an explicit completed=true query: %j', async (query) => {
+    const { app, repository } = setup();
+    const response = await request(app).delete(`/api/todos${query}`);
+    expect(response.status).toBe(422);
+    expect(response.body).toEqual({ detail: expect.any(Array) });
+    expect(repository.deleteCompleted).not.toHaveBeenCalled();
+  },
+);
 it('reports the invalid field in create errors', async () => {
   const { app, repository } = setup();
   const response = await request(app).post('/api/todos').send({ title: '  ' });

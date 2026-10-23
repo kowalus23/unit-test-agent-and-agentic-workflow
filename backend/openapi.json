@@ -91,6 +91,47 @@
             "description": "Invalid input"
           }
         }
+      },
+      "delete": {
+        "summary": "Delete all completed tasks",
+        "parameters": [
+          {
+            "name": "completed",
+            "in": "query",
+            "required": true,
+            "description": "Must be true: the operation only removes completed tasks.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "true"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Number of deleted tasks",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "deleted"
+                  ],
+                  "properties": {
+                    "deleted": {
+                      "type": "integer",
+                      "minimum": 0
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Invalid input"
+          }
+        }
       }
     },
     "/api/todos/{id}": {

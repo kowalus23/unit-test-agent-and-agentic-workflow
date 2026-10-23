@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { createSchema, updateSchema, idSchema, todoSchema, MAX_TODO_ID } from '../src/features/todos/validators.ts';
+import { clearCompletedQuerySchema, createSchema, updateSchema, idSchema, todoSchema, MAX_TODO_ID } from '../src/features/todos/validators.ts';
 import { todo } from './fixture.ts';
 
 describe('todo validation', () => {
@@ -38,6 +38,14 @@ describe('todo validation', () => {
   it('accepts the largest int4 id', () => {
     expect(idSchema.parse(String(MAX_TODO_ID))).toBe(2147483647);
   });
+  it('accepts only completed=true to clear completed tasks', () => {
+    expect(clearCompletedQuerySchema.parse({ completed: 'true' })).toEqual({ completed: 'true' });
+  });
+  it.each([{}, { completed: 'false' }, { completed: '1' }, { completed: true }, { completed: ['true', 'true'] }, { completed: 'true', extra: 'x' }])(
+    'rejects other clear-completed queries: %j', (query) => {
+      expect(clearCompletedQuerySchema.safeParse(query).success).toBe(false);
+    },
+  );
   it('parses positive ids and validates the response schema', () => {
     expect(idSchema.parse('12')).toBe(12);
     expect(todoSchema.parse(todo)).toEqual(todo);
