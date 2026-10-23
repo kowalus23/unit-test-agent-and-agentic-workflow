@@ -1,0 +1,62 @@
+# Version updates wait 7 days after a release (supply-chain cooldown).
+# Security updates are not subject to the cooldown.
+#
+# Node.js majors are deliberate decisions (engines floor, CI matrix, runtime
+# images move together), so Dependabot does not propose them.
+version: 2
+updates:
+  - package-ecosystem: npm
+    directories: [/backend, /frontend, /scripts]
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 7
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: chore(deps)
+    ignore:
+      - dependency-name: "@types/node"
+        update-types: ["version-update:semver-major"]
+    groups:
+      dev-tooling:
+        dependency-type: development
+        update-types: [minor, patch]
+      runtime:
+        dependency-type: production
+        update-types: [patch]
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 7
+    commit-message:
+      prefix: ci(deps)
+    groups:
+      actions:
+        patterns: ["*"]
+
+  - package-ecosystem: docker
+    directories: [/backend, /frontend]
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 7
+    commit-message:
+      prefix: chore(docker)
+    ignore:
+      - dependency-name: node
+        update-types: ["version-update:semver-major"]
+
+  - package-ecosystem: docker-compose
+    directory: /
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 7
+    commit-message:
+      prefix: chore(docker)
+    ignore:
+      - dependency-name: postgres
+        update-types: ["version-update:semver-major"]
