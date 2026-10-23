@@ -1,0 +1,78 @@
+{
+  "version": 1,
+  "mode": "sweep",
+  "base_sha": null,
+  "head_sha": "cba4619b8e4aac4f0119344f36417591adab217a",
+  "run_agent": true,
+  "skip_reason": null,
+  "agent_commit": false,
+  "targets": [
+    {
+      "package": "backend",
+      "source": "backend/src/core/config.ts",
+      "status": "existing",
+      "kind": "module",
+      "changed_lines": "all",
+      "changed_line_count": 21,
+      "owner_test": "backend/tests/config.test.ts",
+      "owner_test_exists": false,
+      "related_tests": []
+    },
+    {
+      "package": "backend",
+      "source": "backend/src/core/database.ts",
+      "status": "existing",
+      "kind": "module",
+      "changed_lines": "all",
+      "changed_line_count": 23,
+      "owner_test": "backend/tests/database.test.ts",
+      "owner_test_exists": false,
+      "related_tests": [
+        "backend/tests/repository.test.ts"
+      ]
+    },
+    {
+      "package": "backend",
+      "source": "backend/src/core/lifespan.ts",
+      "status": "existing",
+      "kind": "module",
+      "changed_lines": "all",
+      "changed_line_count": 34,
+      "owner_test": "backend/tests/lifespan.test.ts",
+      "owner_test_exists": false,
+      "related_tests": []
+    },
+    {
+      "package": "backend",
+      "source": "backend/src/main.ts",
+      "status": "existing",
+      "kind": "module",
+      "changed_lines": "all",
+      "changed_line_count": 7,
+      "owner_test": "backend/tests/main.test.ts",
+      "owner_test_exists": false,
+      "related_tests": []
+    }
+  ],
+  "dropped_targets": [],
+  "ignored": [],
+  "deleted_sources": [],
+  "author_test_changes": [],
+  "flags": {
+    "dependencies_changed": false,
+    "agent_config_changed": false,
+    "test_config_changed": false,
+    "database_changed": false,
+    "injection_suspected": false,
+    "injection_signals": []
+  },
+  "routing": {
+    "tier": "sweep",
+    "model": "claude-sonnet-5-5",
+    "effort": "high",
+    "max_turns": 120,
+    "max_budget_usd": 8,
+    "escalation_tier": null,
+    "reason": "sweep mode"
+  }
+}
