@@ -19,7 +19,11 @@ export const updateSchema = z.strictObject(fields).partial().refine(
   (value) => Object.keys(value).length > 0,
   'Provide at least one field to update.',
 );
-export const idSchema = z.coerce.number().int().positive().max(Number.MAX_SAFE_INTEGER);
+// Path ids are canonical decimal integers within PostgreSQL's int4 range (`id SERIAL`):
+// '0x10', '1e3', '+5' or '012' are rejected instead of being coerced, and ids the column
+// cannot hold are a validation error (422) rather than a database error (500).
+export const MAX_TODO_ID = 2_147_483_647;
+export const idSchema = z.string().regex(/^[1-9]\d*$/).transform(Number).pipe(z.number().int().max(MAX_TODO_ID));
 export const todoSchema = createSchema.extend({
   id: z.number().int().positive(),
   created_at: z.iso.datetime({ offset: true }),
