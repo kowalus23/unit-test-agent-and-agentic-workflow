@@ -1,8 +1,9 @@
 # Version updates wait 7 days after a release (supply-chain cooldown).
 # Security updates are not subject to the cooldown.
 #
-# Node.js majors are deliberate decisions (engines floor, CI matrix, runtime
-# images move together), so Dependabot does not propose them.
+# Major versions are deliberate decisions (breaking changes, engines floor, CI
+# matrix and runtime images move together), so Dependabot proposes only minor
+# and patch updates; majors are planned and upgraded by hand.
 version: 2
 updates:
   - package-ecosystem: npm
@@ -15,7 +16,7 @@ updates:
     commit-message:
       prefix: chore(deps)
     ignore:
-      - dependency-name: "@types/node"
+      - dependency-name: "*"
         update-types: ["version-update:semver-major"]
     groups:
       dev-tooling:
@@ -33,6 +34,9 @@ updates:
       default-days: 7
     commit-message:
       prefix: ci(deps)
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
     groups:
       actions:
         patterns: ["*"]
