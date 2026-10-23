@@ -61,7 +61,7 @@
   "testConfigPaths": ["**/vitest.config.ts", "**/vite.config.ts", "**/tsconfig*.json", "frontend/src/test/setup.ts"],
   "databasePaths": ["backend/prisma/**", "backend/src/core/database.ts", "backend/prisma.config.ts"],
   "routing": {
-    "$comment": "Deterministic model routing by PR weight. A tier that fails verification escalates once to the next tier.",
+    "$comment": "Deterministic model routing by PR weight. In CI a weak attempt (failing tests, guard rejection, blocked run) escalates once to the next tier; L and sweeps do not escalate.",
     "tiers": [
       { "name": "S", "maxTargets": 2, "maxChangedLines": 60, "componentTargets": false, "model": "claude-haiku-5-5", "effort": "medium", "maxTurns": 30, "maxBudgetUsd": 0.75 },
       { "name": "M", "maxTargets": 5, "maxChangedLines": 400, "componentTargets": true, "model": "claude-sonnet-5-5", "effort": "medium", "maxTurns": 45, "maxBudgetUsd": 2 },
