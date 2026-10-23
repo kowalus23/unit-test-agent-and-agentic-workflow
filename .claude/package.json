@@ -1,0 +1,5 @@
+{
+  "$comment": "Marks the agent tooling in .claude/ (hooks, lib) as ES modules for Node.js type stripping and tsc. No dependencies by design.",
+  "private": true,
+  "type": "module"
+}
