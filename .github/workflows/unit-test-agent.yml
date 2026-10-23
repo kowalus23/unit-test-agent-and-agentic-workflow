@@ -1,8 +1,10 @@
 # Unit-test agent for pull requests.
 #
 #   plan     trusted triage of the diff (base-branch scripts, no PR code executed, no secrets)
+#   prepare  generates the Prisma client from the PR (runs PR code, so no secrets)
 #   agent    Claude Code `unit-test-engineer` writes and runs tests (model key only, read-only token,
-#            agent configuration restored from the base branch, policy enforced by hook + settings)
+#            agent configuration restored from the base branch, policy enforced by hook + settings;
+#            PR code runs only inside the agent's sandbox)
 #   verify   independent re-run on a fresh machine without secrets: guard, typecheck, suites,
 #            stability, coverage; produces the only patch that may be proposed
 #   publish  renders the report from artifacts (no model, no PR code) and upserts one PR comment
@@ -94,9 +96,49 @@ jobs:
           path: ${{ runner.temp }}/plan/plan.json
           retention-days: 3
 
+  prepare:
+    name: Prepare
+    # `prisma generate` loads the PR's prisma.config.ts (and through it src/core/config.ts),
+    # so it runs here, without secrets, instead of next to the model key.
+    needs: plan
+    if: needs.plan.outputs.run_agent == 'true'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - name: Check out base (Node.js version only)
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event.pull_request.base.sha }}
+          path: trusted
+          persist-credentials: false
+          sparse-checkout: |
+            .nvmrc
+      - name: Check out PR head
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          path: pr
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: trusted/.nvmrc
+          package-manager-cache: false
+      - name: Generate the Prisma client
+        run: |
+          set -euo pipefail
+          cd pr/backend && npm ci --ignore-scripts && npm run db:generate
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: pr-prisma-client
+          path: pr/backend/src/generated
+          retention-days: 1
+          if-no-files-found: error
+
   agent:
     name: Agent
-    needs: plan
+    needs: [plan, prepare]
     if: needs.plan.outputs.run_agent == 'true'
     runs-on: ubuntu-24.04
     timeout-minutes: 30
@@ -116,9 +158,26 @@ jobs:
           ref: ${{ github.event.pull_request.base.sha }}
           path: trusted
           persist-credentials: false
+      - id: runtime
+        name: Prepare the agent runtime (pinned CLI, sandbox, no sudo)
+        # Deliberately the base-branch checkout: `$/...` would load the action from the PR's commit.
+        uses: ./trusted/.github/actions/agent-runtime # zizmor: ignore[self-repository]
+        with:
+          trusted-path: trusted
+      - name: Install PR dependencies (lifecycle scripts disabled, no PR code runs)
+        run: |
+          set -euo pipefail
+          (cd pr/backend && npm ci --ignore-scripts)
+          (cd pr/frontend && npm ci --ignore-scripts)
+      - name: Add the Prisma client generated without secrets
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: pr-prisma-client
+          path: pr/backend/src/generated
       - name: Restore agent configuration from the base branch
         # A PR must not be able to change the agent that reviews it: remove every
-        # agent instruction/config file the PR could add (at any depth) and use base's.
+        # agent instruction/config file the PR or its packages could add (at any depth,
+        # node_modules included) and use base's.
         run: |
           set -euo pipefail
           find pr -path pr/.git -prune -o \( -name CLAUDE.md -o -name CLAUDE.local.md -o -name AGENTS.md -o -name .claude -o -name .mcp.json -o -name .claude.json \) -print0 \
@@ -128,17 +187,6 @@ jobs:
           git -C pr add -A
           git -C pr -c user.name=unit-test-agent -c user.email=unit-test-agent@localhost \
             commit --quiet --allow-empty --no-verify -m "ci: use the base branch agent configuration"
-      - id: runtime
-        name: Prepare the agent runtime (pinned CLI, sandbox, no sudo)
-        # Deliberately the base-branch checkout: `$/...` would load the action from the PR's commit.
-        uses: ./trusted/.github/actions/agent-runtime # zizmor: ignore[self-repository]
-        with:
-          trusted-path: trusted
-      - name: Install PR dependencies (lifecycle scripts disabled)
-        run: |
-          set -euo pipefail
-          (cd pr/backend && npm ci --ignore-scripts && npm run db:generate)
-          (cd pr/frontend && npm ci --ignore-scripts)
       - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           name: unit-test-agent-plan
