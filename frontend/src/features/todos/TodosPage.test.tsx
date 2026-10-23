@@ -3,6 +3,7 @@ import userEvent from '@testing-library/user-event'
 import { beforeEach, expect, it, vi } from 'vitest'
 import { useNotice } from '../../hooks/useNotice'
 import { todoFixture } from '../../test/todoFixture'
+import { ClearCompletedDialog } from './components/ClearCompletedDialog'
 import { DeleteTodoDialog } from './components/DeleteTodoDialog'
 import { TodoEditor } from './components/TodoEditor'
 import { TodoList } from './components/TodoList'
@@ -34,6 +35,9 @@ vi.mock('./components/TodoEditor', () => ({
 }))
 vi.mock('./components/DeleteTodoDialog', () => ({
   DeleteTodoDialog: vi.fn(() => <p>Delete dialog open</p>),
+}))
+vi.mock('./components/ClearCompletedDialog', () => ({
+  ClearCompletedDialog: vi.fn(() => <p>Clear dialog open</p>),
 }))
 vi.mock('../../components/SuccessNotice', () => ({ SuccessNotice: () => null }))
 
@@ -93,6 +97,8 @@ function setup({
 const listProps = () => vi.mocked(TodoList).mock.lastCall![0]
 const editorProps = () => vi.mocked(TodoEditor).mock.lastCall![0]
 const deleteProps = () => vi.mocked(DeleteTodoDialog).mock.lastCall![0]
+const clearProps = () => vi.mocked(ClearCompletedDialog).mock.lastCall![0]
+const completedTodo = { ...todoFixture, id: 8, completed: true }
 
 it('displays a query failure and resets mutation errors before retrying', async () => {
   const user = userEvent.setup()
@@ -327,3 +333,61 @@ it('closes the dialog and announces the deletion once the task is deleted', () =
   expect(screen.queryByText('Delete dialog open')).not.toBeInTheDocument()
   expect(notify).toHaveBeenCalledWith('Task deleted.')
 })
+
+it('offers to clear completed tasks only when there are some', () => {
+  setup({ data: [todoFixture] })
+  const { rerender } = render(<TodosPage />)
+  expect(
+    screen.queryByRole('button', { name: /Clear completed/ }),
+  ).not.toBeInTheDocument()
+  setup({ data: [todoFixture, completedTodo, { ...completedTodo, id: 9 }] })
+  rerender(<TodosPage />)
+  expect(
+    screen.getByRole('button', { name: 'Clear completed (2)' }),
+  ).toBeEnabled()
+})
+
+it('disables the clear completed control while the page is busy', async () => {
+  const user = userEvent.setup()
+  setup({ data: [completedTodo], busy: true })
+  render(<TodosPage />)
+  const button = screen.getByRole('button', { name: 'Clear completed (1)' })
+  expect(button).toBeDisabled()
+  await user.click(button)
+  expect(screen.queryByText('Clear dialog open')).not.toBeInTheDocument()
+})
+
+it('asks for confirmation before clearing and closes the dialog on cancel', async () => {
+  const user = userEvent.setup()
+  const { notify } = setup({
+    data: [todoFixture, completedTodo, { ...completedTodo, id: 9 }],
+  })
+  render(<TodosPage />)
+  expect(screen.queryByText('Clear dialog open')).not.toBeInTheDocument()
+  await user.click(screen.getByRole('button', { name: 'Clear completed (2)' }))
+  expect(screen.getByText('Clear dialog open')).toBeVisible()
+  expect(clearProps().count).toBe(2)
+  expect(clearProps().busy).toBe(false)
+  act(() => clearProps().onClose())
+  expect(screen.queryByText('Clear dialog open')).not.toBeInTheDocument()
+  expect(notify).not.toHaveBeenCalled()
+})
+
+it.each([
+  [1, 'Cleared 1 completed task.'],
+  [3, 'Cleared 3 completed tasks.'],
+  [0, 'Cleared 0 completed tasks.'],
+])(
+  'closes the dialog and announces the result when %i tasks were cleared',
+  async (deleted, message) => {
+    const user = userEvent.setup()
+    const { notify } = setup({ data: [completedTodo], busy: false })
+    render(<TodosPage />)
+    await user.click(
+      screen.getByRole('button', { name: 'Clear completed (1)' }),
+    )
+    act(() => clearProps().onCleared(deleted))
+    expect(screen.queryByText('Clear dialog open')).not.toBeInTheDocument()
+    expect(notify).toHaveBeenCalledWith(message)
+  },
+)

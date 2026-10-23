@@ -58,3 +58,11 @@ it('deletes a task by id', async () => {
   await todosApi.remove(7)
   expect(request).toHaveBeenCalledWith('/todos/7', { method: 'DELETE' })
 })
+
+it('clears completed tasks with an explicit completed=true query', async () => {
+  vi.mocked(request).mockResolvedValue({ deleted: 2 })
+  await expect(todosApi.clearCompleted()).resolves.toEqual({ deleted: 2 })
+  expect(request).toHaveBeenCalledWith('/todos?completed=true', {
+    method: 'DELETE',
+  })
+})
