@@ -1,0 +1,154 @@
+{
+  "version": 1,
+  "head_sha": "a38b54218c871c66dc6fcb3176594a4ed8573c58",
+  "guard": {
+    "ok": true,
+    "violations": [],
+    "notices": [
+      {
+        "path": "frontend/src/features/todos/utils/todos.test.ts",
+        "kind": "modified_existing_test",
+        "detail": "1 existing line(s) changed (setup, imports or fixtures)"
+      }
+    ],
+    "files": [
+      {
+        "path": "frontend/src/features/todos/utils/todos.test.ts",
+        "package": "frontend",
+        "status": "modified",
+        "added": 44,
+        "removed": 1
+      }
+    ]
+  },
+  "packages": {
+    "backend": {
+      "status": "not_touched",
+      "reasons": [],
+      "test_files": [],
+      "typecheck": null,
+      "baseline": null,
+      "patched": null,
+      "new_tests": {
+        "passed": 0,
+        "failed": 0
+      },
+      "stability": null,
+      "coverage": null
+    },
+    "frontend": {
+      "status": "accepted",
+      "reasons": [],
+      "test_files": [
+        "frontend/src/features/todos/utils/todos.test.ts"
+      ],
+      "typecheck": {
+        "baseline": true,
+        "patched": true
+      },
+      "baseline": {
+        "ran": true,
+        "passed": 139,
+        "failed": 0,
+        "failedTests": [],
+        "totals": {
+          "lines": 98.05,
+          "branches": 97.12
+        }
+      },
+      "patched": {
+        "ran": true,
+        "passed": 145,
+        "failed": 0,
+        "failedTests": [],
+        "totals": {
+          "lines": 100,
+          "branches": 98.56
+        }
+      },
+      "new_tests": {
+        "passed": 35,
+        "failed": 0
+      },
+      "stability": {
+        "runs": 3,
+        "failures": []
+      },
+      "coverage": {
+        "lines_before": 98.05,
+        "lines_after": 100,
+        "branches_before": 97.12,
+        "branches_after": 98.56
+      }
+    }
+  },
+  "targets": [
+    {
+      "source": "frontend/src/features/todos/utils/todos.ts",
+      "package": "frontend",
+      "before": {
+        "statements": {
+          "covered": 27,
+          "total": 31,
+          "pct": 87.1
+        },
+        "branches": {
+          "covered": 35,
+          "total": 38,
+          "pct": 92.11
+        },
+        "functions": {
+          "covered": 6,
+          "total": 8,
+          "pct": 75
+        },
+        "lines": {
+          "covered": 25,
+          "total": 28,
+          "pct": 89.29
+        },
+        "uncoveredLines": [
+          83,
+          84,
+          85
+        ],
+        "partialBranchLines": [
+          52,
+          88
+        ]
+      },
+      "after": {
+        "statements": {
+          "covered": 31,
+          "total": 31,
+          "pct": 100
+        },
+        "branches": {
+          "covered": 37,
+          "total": 38,
+          "pct": 97.37
+        },
+        "functions": {
+          "covered": 8,
+          "total": 8,
+          "pct": 100
+        },
+        "lines": {
+          "covered": 28,
+          "total": 28,
+          "pct": 100
+        },
+        "uncoveredLines": [],
+        "partialBranchLines": [
+          52
+        ]
+      }
+    }
+  ],
+  "final_patch_files": [
+    "frontend/src/features/todos/utils/todos.test.ts"
+  ],
+  "formatted_files": [
+    "frontend/src/features/todos/utils/todos.test.ts"
+  ]
+}

@@ -134,3 +134,16 @@ Coverage — `backend/coverage/index.html`:
 ```sh
 npm run test:coverage
 ```
+
+## Unit-test agent
+
+A Claude Code agent with reusable skills writes and updates unit tests for pull requests; its results appear as a comment on the PR, and a maintainer commits the verified tests with the `unit-test-agent:apply` label. See [SOLUTION.md](SOLUTION.md) for the design, how to run it and example runs, and [docs/threat-model.md](docs/threat-model.md) for the security model.
+
+Repository tooling (`scripts/`) is TypeScript run directly by Node.js 24 (`.nvmrc`):
+
+```sh
+cd scripts
+npm ci
+npm run typecheck
+npm test
+```
