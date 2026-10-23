@@ -1,6 +1,6 @@
 # Agent run evidence
 
-Each directory holds the artifacts of one run of the `unit-test-engineer` agent: the four local sweeps and the CI runs on the example pull requests. Workflow artifacts expire after 1–7 days, so they are kept here. A commit made from a run carries a `Unit-Test-Agent:` trailer that points back here or to the workflow run.
+Each directory holds the artifacts of one run of the `unit-test-engineer` agent: the four local sweeps, one sweep in CI and the CI runs on the example pull requests. Workflow artifacts expire after 1–7 days, so they are kept here. A commit made from a run carries a `Unit-Test-Agent:` trailer that points back here or to the workflow run.
 
 | File | Produced by | Content |
 |---|---|---|
@@ -17,6 +17,12 @@ Each directory holds the artifacts of one run of the `unit-test-engineer` agent:
 | [backend-core](2026-10-23-sweep-backend-core) | [#17](https://github.com/kowalus23/unit-test-agent-and-agentic-workflow/pull/17) | `config.ts`, `database.ts`, `lifespan.ts`, `main.ts` | all 100 % lines and branches; 22 turns |
 | [frontend-data](2026-10-23-sweep-frontend-data) | [#16](https://github.com/kowalus23/unit-test-agent-and-agentic-workflow/pull/16) | `lib/http.ts`, `api/todos.ts`, `utils/todos.ts`, `useNotice.ts`, five React Query hooks and `useTodoFilters` | all 100 % lines; two suspected bugs in `http.ts` reported (fixed in [#23](https://github.com/kowalus23/unit-test-agent-and-agentic-workflow/pull/23)); 44 turns |
 | [frontend-ui](2026-10-23-sweep-frontend-ui) | [#18](https://github.com/kowalus23/unit-test-agent-and-agentic-workflow/pull/18) | `AppProviders`, six todo components and the page | all 100 % lines; no human assertion changed; 54 turns |
+
+## Sweep in CI (workflow_dispatch from `main`, `claude-sonnet-5-5` high)
+
+| Batch | Run | Evidence | Target | Result |
+|---|---|---|---|---|
+| todos utilities | [39975469160](https://github.com/kowalus23/unit-test-agent-and-agentic-workflow/actions/runs/39975469160) | [ci-sweep-todos](2026-10-23-ci-sweep-todos) | `utils/todos.ts` | branches 97.22 → 100 %, one case added; 14 turns, $0.11; signed commit `73847c1` on `unit-test-agent/sweep-39975469160` |
 
 ## Pull-request runs in CI
 

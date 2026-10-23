@@ -7,7 +7,7 @@ A custom Claude Code agent with six reusable skills writes and updates Vitest un
 | Backend coverage (statements / branches / functions / lines) | 30 / 33 / 41 / 33 % · 48 tests | **100 / 100 / 100 / 100 %** · 123 tests |
 | Frontend coverage | 46 / 44 / 40 / 48 % · 18 tests | **99 / 98 / 100 / 100 %** · 157 tests |
 
-Before: CI on the original `main` ([run](https://github.com/kowalus23/unit-test-agent-and-agentic-workflow/actions/runs/39947908780)). After: CI on `infra-dev` once the feature PR's tests were applied ([run](https://github.com/kowalus23/unit-test-agent-and-agentic-workflow/actions/runs/39962471324)). The coverage configuration is unchanged, so the numbers are comparable.
+Before: CI on the original `main` ([run](https://github.com/kowalus23/unit-test-agent-and-agentic-workflow/actions/runs/39947908780)). After: CI on `infra-dev` once the feature PR's tests were applied ([run](https://github.com/kowalus23/unit-test-agent-and-agentic-workflow/actions/runs/39962471324)). The coverage configuration is unchanged, so the numbers are comparable. [#23](https://github.com/kowalus23/unit-test-agent-and-agentic-workflow/pull/23) and the CI sweep later added six frontend tests (163 tests, 99 / 98.7 / 100 / 100 %). The remaining frontend gaps are the `if (pending) return` guards of the two confirmation dialogs, which the UI cannot reach because the button is disabled while a request is pending.
 
 ```mermaid
 flowchart LR
@@ -41,7 +41,7 @@ flowchart LR
    - The job installs packages with scripts disabled, and PR code runs only inside the agent's sandbox. The step gets the model key and no GitHub token.
    - The agent loads `analyzing-test-impact` and `running-unit-tests` up front, and the writing skill for each package. It runs its tests in the sandbox and returns a JSON result validated against `.claude/schemas/agent-result.schema.json`.
    - If that result is weak (failing tests, a guard rejection, a blocked run), CI escalates once to the next tier (S → M, M → L). Tier L and sweeps do not escalate.
-   - Steps 6–7 of the procedure (`reviewing-test-quality`, `reporting-test-results`) are prompt instructions and are not enforced. `skills_used` is the agent's own report, and in the recorded runs it names those two skills only once, in the backend-http sweep.
+   - Steps 6–7 of the procedure (`reviewing-test-quality`, `reporting-test-results`) are prompt instructions and are not enforced. `skills_used` is the agent's own report and not reliable: in the ten recorded runs it names the review skill twice (the backend-http sweep and the CI sweep), and the CI sweep omits the writing skill.
 4. **verify** (`scripts/agent/verify.ts`, no secrets) produces every number in the report.
    - It runs the patch guard and measures a baseline without the patch, so the author's own failures are not blamed on the agent. Then it applies the patch and formats the frontend test files with prettier.
    - The gates are typecheck, the full suites with coverage, test discovery, three shuffled stability runs and no coverage drop. Each package is accepted or rejected on its own.
@@ -62,7 +62,7 @@ flowchart LR
 | Verification outside the agent job | trust the agent's report | The agent job holds a secret and runs untrusted code in its sandbox. Test results and coverage in the report come only from the verify job, which has no secrets. The agent's own summary is shown as quoted plain text and never decides a verdict. |
 | PR code that has to run before the agent runs in a job without secrets | generate the Prisma client in the agent job | `prisma generate` executes the PR's config. The step that holds the key runs only trusted code and the sandboxed agent. |
 | Policy as data plus layered enforcement | prompt instructions only | The prompt guides the model. The settings, hook, sandbox and patch guard enforce the rules even if the model is fooled. |
-| Tests for existing code by the same agent (sweep mode), run locally | write them by hand | Same agent, skills and verification as in CI. Evidence and a commit trailer per batch show where each test came from. |
+| Tests for existing code by the same agent (sweep mode), locally and in CI | write them by hand | Same agent, skills and verification as the PR workflow. Evidence and a commit trailer per batch show where each test came from. |
 
 ## Running it
 
@@ -126,6 +126,10 @@ gh secret set ANTHROPIC_API_KEY --env unit-test-agent
 
 **Tests for existing code (coverage sweep)**: four sweep batches ([#15](https://github.com/kowalus23/unit-test-agent-and-agentic-workflow/pull/15), [#16](https://github.com/kowalus23/unit-test-agent-and-agentic-workflow/pull/16), [#17](https://github.com/kowalus23/unit-test-agent-and-agentic-workflow/pull/17), [#18](https://github.com/kowalus23/unit-test-agent-and-agentic-workflow/pull/18)), run locally. Each one was verified and committed with its plan, result, metrics and verdict under [docs/agent-runs](docs/agent-runs/README.md).
 - Instead of pinning the current behaviour, the agent reported two suspected bugs in `lib/http.ts`: caller headers passed as a `Headers` instance were dropped, and a non-JSON 2xx response surfaced a raw `SyntaxError`. Both are fixed by hand in [#23](https://github.com/kowalus23/unit-test-agent-and-agentic-workflow/pull/23).
+- **Sweep in CI** ([run](https://github.com/kowalus23/unit-test-agent-and-agentic-workflow/actions/runs/39975469160)), dispatched from `main` for `frontend/src/features/todos/utils/todos.ts`. Evidence: [docs/agent-runs/2026-10-23-ci-sweep-todos](docs/agent-runs/2026-10-23-ci-sweep-todos).
+  - The agent found the one untaken branch: tasks without a due date under the due-date sort. It added one case that checks two input orders. Sonnet high, 14 turns, $0.11, 29 s.
+  - Verify: frontend suite 162 → 163 tests, `todos.ts` branches 97 → 100 %, stable.
+  - The workflow committed the test as signed commit `73847c1` on `unit-test-agent/sweep-39975469160`. The pull request that brings it to `main` also carries this documentation update.
 - Two bugs found in the initial code review were fixed by hand in [#13](https://github.com/kowalus23/unit-test-agent-and-agentic-workflow/pull/13) (health check returns 503) and [#14](https://github.com/kowalus23/unit-test-agent-and-agentic-workflow/pull/14) (path ids limited to canonical int4 values). On both PRs the agent wrote the regression tests.
 
 ## Assumptions
@@ -139,10 +143,9 @@ gh secret set ANTHROPIC_API_KEY --env unit-test-agent
 
 - **Untrusted code next to the key.** The agent job runs the PR's tests on the machine that holds the model key, inside the sandbox. The sandbox removes credentials from the environment, adds a separate PID namespace and routes the network through a proxy that allows no domains by default. That default is not set explicitly and not exercised by a test. Sudo is removed first. A user with write access can still change the workflow itself in a PR, and the environment that holds the key has no branch policy. See the [threat model](docs/threat-model.md).
 - **Verify is not sandboxed.** It runs PR code with no secrets; apply re-checks everything it commits.
-- **The CI sweep workflow has not run yet.** It needs the file on the default branch. The four coverage batches ran locally with the same plan, run-agent and verify scripts.
 - **Approval quirk.** Approving runs on bot commits from the PR page did not always register (twice); the REST approve call did.
 - **No database or browser tests yet.** There is no Postgres integration job, no Playwright and no Storybook interaction tests. The design-system components are excluded from coverage by the original Vitest config and stay untested (jsdom does not implement `HTMLDialogElement.showModal()`, which `Drawer` uses).
-- **Self-review is neither independent nor enforced.** The rubric (`reviewing-test-quality`) is a prompt step, and the self-reported `skills_used` lists it in one of the recorded runs. Quality rests on the deterministic gates; there is no separate reviewer model and no mutation testing.
+- **Self-review is neither independent nor enforced.** The rubric (`reviewing-test-quality`) is a prompt step, and the self-reported `skills_used` lists it in two of the ten recorded runs. Quality rests on the deterministic gates; there is no separate reviewer model and no mutation testing.
 - **Model routing thresholds** come from a handful of runs and are not tuned statistically.
 
 ## What I would change for production
