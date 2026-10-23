@@ -63,7 +63,7 @@ jobs:
           {
             echo "backend=$(has "^backend/|$shared")"
             echo "frontend=$(has "^frontend/|$shared")"
-            echo "tooling=$(has "^scripts/|$shared")"
+            echo "tooling=$(has "^scripts/|^\.claude/|^\.github/agent-runtime/|$shared")"
             echo "workflows=$(has '^\.github/|^scripts/[^/]+\.sh$')"
           } | tee -a "$GITHUB_OUTPUT"
 

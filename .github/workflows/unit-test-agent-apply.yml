@@ -1,0 +1,117 @@
+# Commits the tests the unit-test agent proposed, on explicit request.
+#
+# Trigger: a maintainer adds the `unit-test-agent:apply` label (labels require
+# triage/write access, so the authorization comes from GitHub itself).
+# No model and no PR code run here: the job takes the patch that the verify job
+# produced for exactly the current head commit, re-checks it with the trusted
+# guard and commits it atomically with createCommitOnBranch(expectedHeadOid).
+#
+# Commits made with GITHUB_TOKEN start CI in an approval-required state; a
+# maintainer approves that run, which keeps a human in the loop.
+
+name: Unit-test agent (apply)
+
+on:
+  pull_request:
+    types: [labeled]
+
+permissions: {}
+
+concurrency:
+  group: unit-test-agent-apply-${{ github.event.pull_request.number }}
+  cancel-in-progress: false
+
+jobs:
+  apply:
+    name: Apply verified tests
+    if: >-
+      github.event.label.name == 'unit-test-agent:apply'
+      && github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    permissions:
+      contents: write # one commit with the verified test files on the PR branch
+      actions: read # find the agent run and download its verified patch
+      pull-requests: write # remove the label and report the outcome
+    env:
+      GH_TOKEN: ${{ github.token }}
+      REPO: ${{ github.repository }}
+      PR_NUMBER: ${{ github.event.pull_request.number }}
+      HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+      HEAD_REF: ${{ github.event.pull_request.head.ref }}
+    steps:
+      - name: Check out base (trusted tooling)
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event.pull_request.base.sha }}
+          path: trusted
+          persist-credentials: false
+          sparse-checkout: |
+            .nvmrc
+            .claude/lib
+            .claude/policy
+            scripts/agent
+      - name: Check out PR head (files are only read, never executed)
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          path: pr
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: trusted/.nvmrc
+          package-manager-cache: false
+      - id: run
+        name: Find the agent run verified for this head commit
+        run: |
+          set -euo pipefail
+          run_id="$(gh api "repos/$REPO/actions/workflows/unit-test-agent.yml/runs?head_sha=$HEAD_SHA&event=pull_request&status=success&per_page=20" \
+            --jq '.workflow_runs | sort_by(.run_number) | last | .id // empty')"
+          if [[ -z "$run_id" ]]; then
+            echo "::error::No successful unit-test agent run for $HEAD_SHA. Wait for the agent to finish (or push again), then re-add the label."
+            exit 1
+          fi
+          echo "run_id=$run_id" >> "$GITHUB_OUTPUT"
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          pattern: unit-test-agent-{verdict,final-patch}
+          path: ${{ runner.temp }}/verified
+          merge-multiple: true
+          run-id: ${{ steps.run.outputs.run_id }}
+          github-token: ${{ github.token }}
+      - name: Re-check and prepare the commit
+        env:
+          RUN_ID: ${{ steps.run.outputs.run_id }}
+        run: |
+          set -euo pipefail
+          git -C pr apply --check "$RUNNER_TEMP/verified/final.patch"
+          git -C pr apply "$RUNNER_TEMP/verified/final.patch"
+          node trusted/scripts/agent/apply-commit.ts \
+            --repo pr \
+            --patch "$RUNNER_TEMP/verified/final.patch" \
+            --verdict "$RUNNER_TEMP/verified/verdict.json" \
+            --repository "$REPO" \
+            --branch "$HEAD_REF" \
+            --expected-head "$HEAD_SHA" \
+            --run-id "$RUN_ID" \
+            --out "$RUNNER_TEMP/commit-input.json"
+      - name: Commit atomically on the PR branch
+        run: |
+          set -euo pipefail
+          # shellcheck disable=SC2016 # $input is a GraphQL variable, not a shell expansion
+          query='mutation($input: CreateCommitOnBranchInput!) { createCommitOnBranch(input: $input) { commit { oid url } } }'
+          jq --arg query "$query" '{query: $query, variables: .}' "$RUNNER_TEMP/commit-input.json" > "$RUNNER_TEMP/request.json"
+          gh api graphql --input "$RUNNER_TEMP/request.json" --jq '.data.createCommitOnBranch.commit.oid' > "$RUNNER_TEMP/commit-oid"
+          echo "Committed $(cat "$RUNNER_TEMP/commit-oid") on $HEAD_REF" >> "$GITHUB_STEP_SUMMARY"
+      - name: Remove the label and report
+        if: always()
+        env:
+          OUTCOME: ${{ job.status }}
+        run: |
+          gh api -X DELETE "repos/$REPO/issues/$PR_NUMBER/labels/unit-test-agent:apply" > /dev/null || true
+          if [[ -s "$RUNNER_TEMP/commit-oid" ]]; then
+            msg="Applied the verified unit tests in $(cat "$RUNNER_TEMP/commit-oid"). CI on that commit waits for a maintainer to approve the workflow run."
+          else
+            msg="Could not apply the unit tests (outcome: $OUTCOME). See the apply workflow run for details; the PR branch was not changed."
+          fi
+          gh api -X POST "repos/$REPO/issues/$PR_NUMBER/comments" -f body="$msg" > /dev/null
